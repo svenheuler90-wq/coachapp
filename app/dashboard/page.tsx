@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -730,25 +731,71 @@ export default function DashboardPage() {
       />
 
       {loading ? (
-        <section className="card">
-          <p className="muted">Lade Dashboard...</p>
-        </section>
-      ) : (
-        <section className="grid two">
-          {sections.map((section) => {
-            const item = layout.find((x) => x.id === section.id);
-            return (
-              <div
-                key={section.id}
-                className={getLayoutItemWidthClass(item?.width || "full")}
-              >
-                {section.content}
-              </div>
-            );
-          })}
-        </section>
-      )}
-    </main>
+  <section className="card">
+    <p className="muted">Lade Dashboard...</p>
+  </section>
+) : (
+  <>
+    {/* MOBILE */}
+    <div className="mobile-stat-strip">
+      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
+        <div className="mobile-stat-label">Athleten</div>
+        <div className="mobile-stat-value">{athletes.length}</div>
+      </div>
+
+      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
+        <div className="mobile-stat-label">Check-ins</div>
+        <div className="mobile-stat-value">{allCheckins.length}</div>
+      </div>
+
+      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
+        <div className="mobile-stat-label">Nachrichten</div>
+        <div className="mobile-stat-value">{allMessages.length}</div>
+      </div>
+
+      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
+        <div className="mobile-stat-label">Coaches</div>
+        <div className="mobile-stat-value">{coaches.length}</div>
+      </div>
+    </div>
+
+    <div className="mobile-home-grid">
+      <Link href="/coach" className="mobile-home-card">
+        <div className="mobile-home-card-title">Athleten</div>
+      </Link>
+
+      <Link href="/coach/messages" className="mobile-home-card">
+        <div className="mobile-home-card-title">Nachrichten</div>
+      </Link>
+
+      <Link href="/coach/checkins" className="mobile-home-card">
+        <div className="mobile-home-card-title">Check-ins</div>
+      </Link>
+
+      <Link href="/coach/more" className="mobile-home-card">
+        <div className="mobile-home-card-title">Mehr</div>
+      </Link>
+    </div>
+
+    {/* DESKTOP */}
+    <div className="desktop-only">
+      <section className="grid two">
+        {sections.map((section) => {
+          const item = layout.find((x) => x.id === section.id);
+          return (
+            <div
+              key={section.id}
+              className={getLayoutItemWidthClass(item?.width || "half")}
+            >
+              {section.content}
+            </div>
+          );
+        })}
+      </section>
+    </div>
+  </>
+)}
+            </main>
   </AppShell>
   );
 }
