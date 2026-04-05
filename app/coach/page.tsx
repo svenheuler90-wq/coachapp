@@ -571,9 +571,54 @@ await fetch("/api/push/send", {
   };
 
   const sendMessage = async () => {
-    setInfo("");
+  setInfo("");
 
-  const sendBroadcast = async () => {
+  if (!selected) {
+    setInfo("Fehler: Kein Athlet ausgewählt.");
+    return;
+  }
+
+  if (!messageText.trim()) {
+    setInfo("Fehler: Bitte zuerst eine Nachricht eingeben.");
+    return;
+  }
+
+  const localCreatedAt = new Date().toLocaleString("de-DE");
+
+  const { error } = await supabase.from("messages").insert({
+    athlete_id: selected.id,
+    sender_role: "coach",
+    content: messageText.trim(),
+    is_seen: false,
+    local_created_at: localCreatedAt,
+  });
+
+  if (error) {
+    setInfo("Fehler: " + error.message);
+    return;
+  }
+
+  await fetch("/api/push/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      type: "message_from_coach",
+      athleteId: selected.id,
+      senderUserId: me?.id || null,
+      title: "Neue Nachricht vom Coach",
+      message: messageText.trim(),
+      url: `/athlete`,
+    }),
+  });
+
+  setMessageText("");
+  setInfo("Nachricht gespeichert.");
+  await loadAthleteData(selected.id);
+};
+
+const sendBroadcast = async () => {
   setInfo("");
 
   if (!broadcastText.trim()) {
@@ -619,50 +664,6 @@ await fetch("/api/push/send", {
     setSendingBroadcast(false);
   }
 };
-
-    if (!selected) {
-      setInfo("Fehler: Kein Athlet ausgewählt.");
-      return;
-    }
-
-    if (!messageText.trim()) {
-      setInfo("Fehler: Bitte zuerst eine Nachricht eingeben.");
-      return;
-    }
-
-    const localCreatedAt = new Date().toLocaleString("de-DE");
-
-    const { error } = await supabase.from("messages").insert({
-      athlete_id: selected.id,
-      sender_role: "coach",
-      content: messageText.trim(),
-      is_seen: false,
-      local_created_at: localCreatedAt,
-    });
-
-    if (error) {
-      setInfo("Fehler: " + error.message);
-      return;
-    }
-
-await fetch("/api/push/send", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    type: "message_from_coach",
-    athleteId: selected.id,
-    senderUserId: me?.id || null,
-    title: "Neue Nachricht vom Coach",
-    message: messageText.trim(),
-    url: `/athlete`,
-  }),
-});
-    setMessageText("");
-    setInfo("Nachricht gespeichert.");
-    await loadAthleteData(selected.id);
-  };
 
   const startEditMessage = (message: any) => {
     setEditingMessageId(message.id);
