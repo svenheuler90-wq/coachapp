@@ -295,3 +295,73 @@ label {
     font-size: 24px;
   }
 }
+.mobile-home-grid {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-home-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .mobile-home-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 16px;
+    text-decoration: none;
+    color: white;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .mobile-home-card-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .mobile-home-card-text {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.35;
+  }
+
+  .mobile-stat-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .mobile-stat-box {
+    background: #111827;
+    border-radius: 14px;
+    padding: 14px;
+    border-left: 4px solid #60a5fa;
+  }
+
+  .mobile-stat-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.72);
+    margin-bottom: 6px;
+  }
+
+  .mobile-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+  }
+}

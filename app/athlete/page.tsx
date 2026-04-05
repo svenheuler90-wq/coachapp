@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import PushEnableButton from "@/components/PushEnableButton";
 import { useEffect, useMemo, useState } from "react";
@@ -956,6 +957,65 @@ await fetch("/api/push/send", {
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
 <PushEnableButton />
 
+<div className="mobile-stat-strip">
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
+    <div className="mobile-stat-label">Nächster Check-in</div>
+    <div className="mobile-stat-value">
+      {profile
+        ? `${daysUntilNextCheckin(
+            Number(profile.checkin_weekday ?? 0),
+            Number(profile.checkin_interval_days ?? 7)
+          )} T`
+        : "-"}
+    </div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
+    <div className="mobile-stat-label">Pläne</div>
+    <div className="mobile-stat-value">{plans.length}</div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
+    <div className="mobile-stat-label">Nachrichten</div>
+    <div className="mobile-stat-value">{messages.length}</div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
+    <div className="mobile-stat-label">Check-ins</div>
+    <div className="mobile-stat-value">{checkins.length}</div>
+  </div>
+</div>
+
+<div className="mobile-home-grid">
+  <Link href="/athlete/messages" className="mobile-home-card">
+    <div className="mobile-home-card-title">Nachrichten</div>
+    <div className="mobile-home-card-text">
+      Chat mit deinem Coach und neue Antworten ansehen.
+    </div>
+  </Link>
+
+  <Link href="/athlete/checkin" className="mobile-home-card">
+    <div className="mobile-home-card-title">Check-in</div>
+    <div className="mobile-home-card-text">
+      Deinen nächsten Check-in schnell und sauber erfassen.
+    </div>
+  </Link>
+
+  <Link href="/athlete/plans" className="mobile-home-card">
+    <div className="mobile-home-card-title">Pläne</div>
+    <div className="mobile-home-card-text">
+      Trainings- und Ernährungspläne direkt öffnen.
+    </div>
+  </Link>
+
+  <Link href="/athlete/profile" className="mobile-home-card">
+    <div className="mobile-home-card-title">Profil</div>
+    <div className="mobile-home-card-text">
+      Deine Phase, Ziele und Check-in-Daten ansehen.
+    </div>
+  </Link>
+</div>
+
       {loading ? (
         <section className="card">
           <p className="muted">Lade Daten...</p>
@@ -974,7 +1034,7 @@ await fetch("/api/push/send", {
       />
 
       {profile ? (
-        <>
+        <div className="desktop-only">
           <section className="grid three">
             <div className="card stat-card" style={{ borderLeft: "4px solid #60a5fa" }}>
               <div className="stat-label">Name</div>
@@ -1003,7 +1063,7 @@ await fetch("/api/push/send", {
               );
             })}
           </section>
-        </>
+        </div>
       ) : null}
     </main>
   </AppShell>

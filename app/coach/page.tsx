@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 export const dynamic = "force-dynamic";
 import PushEnableButton from "@/components/PushEnableButton";
@@ -1491,6 +1492,58 @@ const sendBroadcast = async () => {
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
 <PushEnableButton />
 
+<div className="mobile-stat-strip">
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
+    <div className="mobile-stat-label">Athleten</div>
+    <div className="mobile-stat-value">{athletes.length}</div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
+    <div className="mobile-stat-label">Check-ins</div>
+    <div className="mobile-stat-value">{checkins.length}</div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
+    <div className="mobile-stat-label">Nachrichten</div>
+    <div className="mobile-stat-value">{messages.length}</div>
+  </div>
+
+  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
+    <div className="mobile-stat-label">Pläne</div>
+    <div className="mobile-stat-value">{plans.length}</div>
+  </div>
+</div>
+
+<div className="mobile-home-grid">
+  <Link href="/coach/messages" className="mobile-home-card">
+    <div className="mobile-home-card-title">Nachrichten</div>
+    <div className="mobile-home-card-text">
+      Athleten-Nachrichten lesen, beantworten und Broadcast senden.
+    </div>
+  </Link>
+
+  <Link href="/coach/checkins" className="mobile-home-card">
+    <div className="mobile-home-card-title">Check-ins</div>
+    <div className="mobile-home-card-text">
+      Neue Check-ins prüfen und Fortschritte vergleichen.
+    </div>
+  </Link>
+
+  <Link href="/coach" className="mobile-home-card">
+    <div className="mobile-home-card-title">Athleten</div>
+    <div className="mobile-home-card-text">
+      Athleten öffnen, bearbeiten und direkt verwalten.
+    </div>
+  </Link>
+
+  <Link href="/coach/more" className="mobile-home-card">
+    <div className="mobile-home-card-title">Mehr</div>
+    <div className="mobile-home-card-text">
+      Broadcast, weitere Aktionen und spätere Extras.
+    </div>
+  </Link>
+</div>
+
       <LayoutEditor
         isAdmin={me?.role === "admin"}
         editing={editingLayout}
@@ -1502,6 +1555,7 @@ const sendBroadcast = async () => {
         saving={savingLayout}
       />
 
+    <div className="desktop-only">
       {!selected ? (
         <section className="card">
           <p className="muted">Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.</p>
@@ -1521,6 +1575,7 @@ const sendBroadcast = async () => {
           })}
         </section>
       )}
+      </div>
     </main>
   </AppShell>
   );
