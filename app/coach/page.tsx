@@ -1544,7 +1544,7 @@ const sendBroadcast = async () => {
   </Link>
 </div>
 
-      <LayoutEditor
+            <LayoutEditor
         isAdmin={me?.role === "admin"}
         editing={editingLayout}
         setEditing={setEditingLayout}
@@ -1555,111 +1555,30 @@ const sendBroadcast = async () => {
         saving={savingLayout}
       />
 
-    <div className="desktop-only">
-      {!selected ? (
-  <section className="card">
-    <p className="muted">Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.</p>
-  </section>
-) : (
-  <>
-    {/* MOBILE VIEW */}
-    <div className="show-mobile-only">
-      <section className="grid two">
-        {/* dein mobile content */}
-      </section>
-    </div>
-
-    {/* DESKTOP VIEW */}
-    <div className="hide-mobile-only">
-      <section className="grid two">
-        {sections.map((section) => {
-          const item = layout.find((x) => x.id === section.id);
-          return (
-            <div
-              key={section.id}
-              className={getLayoutItemWidthClass(item?.width || "half")}
-            >
-              {section.content}
-            </div>
-          );
-        })}
-      </section>
-    </div>
-  </>
-)}
-
-    {/* AKTUELLER ATHLET */}
-    <div className="card" style={{ borderLeft: "4px solid #22c55e" }}>
-      <strong>{selecteAd?.full_name || "Kein Athlet"}</strong>
-
-      <div className="muted">Ziel: {selected?.goal || "-"}</div>
-      <div className="muted">Phase: {selected?.current_phase || "-"}</div>
-
-      <div className="button-row" style={{ marginTop: 10 }}>
-        <button
-          className="btn btn-primary"
-          onClick={() => router.push(`/coach?athlete=${selected?.id}`)}
-        >
-          Öffnen
-        </button>
-
-        <button
-          className="btn btn-secondary"
-          onClick={() => router.push("/coach/messages")}
-        >
-          Chat
-        </button>
+      <div className="desktop-only">
+        {!selected ? (
+          <section className="card">
+            <p className="muted">
+              Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.
+            </p>
+          </section>
+        ) : (
+          <section className="grid two">
+            {sections.map((section) => {
+              const item = layout.find((x) => x.id === section.id);
+              return (
+                <div
+                  key={section.id}
+                  className={getLayoutItemWidthClass(item?.width || "half")}
+                >
+                  {section.content}
+                </div>
+              );
+            })}
+          </section>
+        )}
       </div>
-    </div>
 
-    {/* SCHNELLZUGRIFF */}
-    <div className="card" style={{ borderLeft: "4px solid #60a5fa" }}>
-      <strong>Schnellzugriff</strong>
-
-      <div className="button-row" style={{ marginTop: 10 }}>
-        <button className="btn btn-primary" onClick={() => router.push("/coach/messages")}>
-          Nachrichten
-        </button>
-
-        <button className="btn btn-secondary" onClick={() => router.push("/coach/checkins")}>
-          Check-ins
-        </button>
-
-        <button className="btn btn-secondary" onClick={() => router.push("/coach/more")}>
-          Mehr
-        </button>
-      </div>
-    </div>
-
-    {/* ATHLETEN LISTE */}
-    <div className="card" style={{ borderLeft: "4px solid #f59e0b" }}>
-      <strong>Deine Athleten</strong>
-
-      {athletes.length === 0 ? (
-        <p className="muted">Keine Athleten</p>
-      ) : (
-        <div className="stack" style={{ marginTop: 10 }}>
-          {athletes.map((athlete) => (
-            <div
-              key={athlete.id}
-              className="item"
-              onClick={() => {
-                applySelectedAthlete(athlete);
-                loadAthleteData(athlete.id);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <strong>{athlete.full_name}</strong>
-              <div className="muted">{athlete.goal || "-"}</div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-
-  </section>
-</div>
-     
     </main>
   </AppShell>
   );
