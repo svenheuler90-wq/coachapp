@@ -1557,14 +1557,36 @@ const sendBroadcast = async () => {
 
     <div className="desktop-only">
       {!selected ? (
-        <section className="card">
-          <p className="muted">Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.</p>
-        </section>
-      ) : (
-       <>
-        {/* MOBILE VIEW */}
-<div className="show-mobile-only">
-  <section className="grid two">
+  <section className="card">
+    <p className="muted">Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.</p>
+  </section>
+) : (
+  <>
+    {/* MOBILE VIEW */}
+    <div className="show-mobile-only">
+      <section className="grid two">
+        {/* dein mobile content */}
+      </section>
+    </div>
+
+    {/* DESKTOP VIEW */}
+    <div className="hide-mobile-only">
+      <section className="grid two">
+        {sections.map((section) => {
+          const item = layout.find((x) => x.id === section.id);
+          return (
+            <div
+              key={section.id}
+              className={getLayoutItemWidthClass(item?.width || "half")}
+            >
+              {section.content}
+            </div>
+          );
+        })}
+      </section>
+    </div>
+  </>
+)}
 
     {/* AKTUELLER ATHLET */}
     <div className="card" style={{ borderLeft: "4px solid #22c55e" }}>
@@ -1637,36 +1659,6 @@ const sendBroadcast = async () => {
 
   </section>
 </div>
-
-{/* DESKTOP VIEW */}
-<div className="hide-mobile-only">
-  <section className="grid two">
-    {sections.map((section) => {
-      const item = layout.find((x) => x.id === section.id);
-      return (
-        <div
-          key={section.id}
-          className={getLayoutItemWidthClass(item?.width || "half")}
-        >
-          {section.content}
-        </div>
-      );
-    })}
-  </section>
-</div>
-           
-              <div
-                key={section.id}
-                className={getLayoutItemWidthClass(item?.width || "half")}
-              >
-                {section.content}
-              </div>
-            );
-          })}
-        </section>
-      </div>
-     </>
-    )}
      
     </main>
   </AppShell>
