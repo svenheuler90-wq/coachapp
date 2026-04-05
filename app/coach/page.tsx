@@ -1650,7 +1650,6 @@ const sendBroadcast = async () => {
         >
           {section.content}
         </div>
-      </>
       );
     })}
   </section>
