@@ -745,12 +745,12 @@ export default function DashboardPage() {
 
       <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
         <div className="mobile-stat-label">Check-ins</div>
-        <div className="mobile-stat-value">{allCheckins.length}</div>
+        <div className="mobile-stat-value">{checkins.length}</div>
       </div>
 
       <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
         <div className="mobile-stat-label">Nachrichten</div>
-        <div className="mobile-stat-value">{allMessages.length}</div>
+        <div className="mobile-stat-value">{messages.length}</div>
       </div>
 
       <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
