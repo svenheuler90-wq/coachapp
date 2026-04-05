@@ -224,7 +224,6 @@ useEffect(() => {
   const [editingLayout, setEditingLayout] = useState(false);
   const [savingLayout, setSavingLayout] = useState(false);
 
-  const athleteIdFromUrl = useMemo(() => params.get("athlete") || "", [params]);
 
   useEffect(() => {
     const init = async () => {
