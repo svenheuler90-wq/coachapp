@@ -1561,6 +1561,7 @@ const sendBroadcast = async () => {
           <p className="muted">Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.</p>
         </section>
       ) : (
+       <>
         {/* MOBILE VIEW */}
 <div className="show-mobile-only">
   <section className="grid two">
