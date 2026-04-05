@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Header, BackToDashboard } from "@/components/Header";
 import LayoutEditor from "@/components/LayoutEditor";
 import {
@@ -155,7 +155,13 @@ function renderPhotoGallery(photosForCheckin: any[]) {
 
 function CoachPageContent() {
   const router = useRouter();
-  const params = useSearchParams();
+  const [athleteIdFromUrl, setAthleteIdFromUrl] = useState("");
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+  const search = new URLSearchParams(window.location.search);
+  setAthleteIdFromUrl(search.get("athlete") || "");
+}, []);
 
   const [athletes, setAthletes] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
