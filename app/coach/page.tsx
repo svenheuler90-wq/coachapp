@@ -1,5 +1,6 @@
 "use client";
 
+import AppShell from "@/components/AppShell";
 export const dynamic = "force-dynamic";
 import PushEnableButton from "@/components/PushEnableButton";
 import { Suspense, useEffect, useState } from "react";
@@ -1472,6 +1473,7 @@ const sendBroadcast = async () => {
   );
 
   return (
+ <AppShell role={me?.role === "admin" ? "admin" : "coach"}>
     <main className="page">
       <Header
         title={selected?.full_name || "Athlet"}
@@ -1520,6 +1522,7 @@ const sendBroadcast = async () => {
         </section>
       )}
     </main>
+  </AppShell>
   );
 }
 export default function CoachPage() {
