@@ -1649,12 +1649,12 @@ const sendBroadcast = async () => {
         >
           {section.content}
         </div>
+      </>
       );
     })}
   </section>
 </div>
-            const item = layout.find((x) => x.id === section.id);
-            return (
+           
               <div
                 key={section.id}
                 className={getLayoutItemWidthClass(item?.width || "half")}
