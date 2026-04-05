@@ -152,7 +152,7 @@ function renderPhotoGallery(photosForCheckin: any[]) {
   );
 }
 
-function CoachPage() {
+function CoachPageContent() {
   const router = useRouter();
   const params = useSearchParams();
 
