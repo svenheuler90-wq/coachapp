@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header, BackToDashboard } from "@/components/Header";
@@ -152,7 +152,7 @@ function renderPhotoGallery(photosForCheckin: any[]) {
   );
 }
 
-export default function CoachPage() {
+function CoachPage() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -1414,5 +1414,20 @@ export default function CoachPage() {
         </section>
       )}
     </main>
+  );
+}
+export default function CoachPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="page">
+          <section className="card">
+            <p className="muted">Lade Coach-Seite...</p>
+          </section>
+        </main>
+      }
+    >
+      <CoachPageContent />
+    </Suspense>
   );
 }
