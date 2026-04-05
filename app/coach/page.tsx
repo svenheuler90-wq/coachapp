@@ -573,7 +573,7 @@ await fetch("/api/push/send", {
   const sendMessage = async () => {
     setInfo("");
 
-const sendBroadcast = async () => {
+  const sendBroadcast = async () => {
   setInfo("");
 
   if (!broadcastText.trim()) {
