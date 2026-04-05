@@ -365,3 +365,21 @@ label {
     color: white;
   }
 }
+
+.show-mobile-only {
+  display: none;
+}
+
+.hide-mobile-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .show-mobile-only {
+    display: block;
+  }
+
+  .hide-mobile-only {
+    display: none;
+  }
+}
