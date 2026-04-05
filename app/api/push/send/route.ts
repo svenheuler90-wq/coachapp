@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
@@ -17,6 +18,23 @@ webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 type PushPayload = {
   title: string;
   body: string;
+  url?: string;
+  type?: string;
+};
+
+type PushRequestBody = {
+  type:
+    | "message_from_coach"
+    | "message_from_athlete"
+    | "plan_uploaded"
+    | "checkin_created"
+    | "broadcast_message"
+    | "checkin_due_today"
+    | "checkin_overdue";
+  athleteId?: string | null;
+  senderUserId?: string | null;
+  title?: string;
+  message?: string;
   url?: string;
 };
 
@@ -51,100 +69,166 @@ async function sendToUserIds(userIds: string[], payload: PushPayload) {
   }
 }
 
+async function getRecipientCoachIdsForAthlete(athleteId: string) {
+  const coachIds: string[] = [];
+
+  const { data: athlete } = await admin
+    .from("profiles")
+    .select("coach_id")
+    .eq("id", athleteId)
+    .single();
+
+  if (athlete?.coach_id) coachIds.push(athlete.coach_id);
+
+  const { data: admins } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("role", "admin");
+
+  for (const a of admins ?? []) {
+    if (!coachIds.includes(a.id)) coachIds.push(a.id);
+  }
+
+  return coachIds;
+}
+
+async function buildTargets(body: PushRequestBody) {
+  const { type, athleteId, senderUserId } = body;
+  let targetUserIds: string[] = [];
+
+  if (type === "message_from_coach" && athleteId) {
+    targetUserIds = [athleteId];
+  }
+
+  if (type === "message_from_athlete" && athleteId) {
+    targetUserIds = await getRecipientCoachIdsForAthlete(athleteId);
+  }
+
+  if (type === "plan_uploaded" && athleteId) {
+    targetUserIds = [athleteId];
+  }
+
+  if (type === "checkin_created" && athleteId) {
+    targetUserIds = await getRecipientCoachIdsForAthlete(athleteId);
+  }
+
+  if (type === "broadcast_message") {
+    const { data: athletes } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("role", "athlete");
+
+    targetUserIds = (athletes ?? []).map((a: any) => a.id);
+  }
+
+  if (type === "checkin_due_today" && athleteId) {
+    targetUserIds = [athleteId];
+  }
+
+  if (type === "checkin_overdue" && athleteId) {
+    targetUserIds = [athleteId];
+  }
+
+  if (senderUserId) {
+    targetUserIds = targetUserIds.filter((id) => id !== senderUserId);
+  }
+
+  return [...new Set(targetUserIds)];
+}
+
+function buildPayload(body: PushRequestBody): PushPayload {
+  const { type, title, message, url = "/" } = body;
+
+  if (title && message) {
+    return {
+      title,
+      body: message,
+      url,
+      type,
+    };
+  }
+
+  switch (type) {
+    case "message_from_coach":
+      return {
+        title: "Neue Nachricht vom Coach",
+        body: message || "Du hast eine neue Nachricht erhalten.",
+        url,
+        type,
+      };
+
+    case "message_from_athlete":
+      return {
+        title: "Neue Nachricht vom Athleten",
+        body: message || "Ein Athlet hat dir geschrieben.",
+        url,
+        type,
+      };
+
+    case "plan_uploaded":
+      return {
+        title: "Neuer Plan verfügbar",
+        body: message || "Ein neuer Plan wurde hochgeladen.",
+        url,
+        type,
+      };
+
+    case "checkin_created":
+      return {
+        title: "Neuer Check-in eingegangen",
+        body: message || "Ein Athlet hat einen neuen Check-in eingereicht.",
+        url,
+        type,
+      };
+
+    case "broadcast_message":
+      return {
+        title: "Neue Nachricht",
+        body: message || "Es gibt eine neue Nachricht an alle.",
+        url,
+        type,
+      };
+
+    case "checkin_due_today":
+      return {
+        title: "Check-in heute fällig",
+        body: message || "Dein Check-in ist heute fällig.",
+        url,
+        type,
+      };
+
+    case "checkin_overdue":
+      return {
+        title: "Check-in überfällig",
+        body: message || "Dein Check-in ist überfällig.",
+        url,
+        type,
+      };
+
+    default:
+      return {
+        title: "CoachFlow",
+        body: message || "Neue Benachrichtigung",
+        url,
+        type,
+      };
+  }
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as PushRequestBody;
 
-    const {
-      type,
-      athleteId,
-      coachId,
-      senderRole,
-      senderUserId,
-      broadcast = false,
-      title,
-      message,
-      url = "/",
-    } = body ?? {};
-
-    let targetUserIds: string[] = [];
-
-    if (broadcast) {
-      const { data: athletes } = await admin
-        .from("profiles")
-        .select("id")
-        .eq("role", "athlete");
-
-      targetUserIds = (athletes ?? []).map((a: any) => a.id);
-    } else if (type === "message") {
-      if (senderRole === "coach" && athleteId) {
-        targetUserIds = [athleteId];
-      }
-
-      if (senderRole === "athlete" && athleteId) {
-        const { data: athlete } = await admin
-          .from("profiles")
-          .select("coach_id")
-          .eq("id", athleteId)
-          .single();
-
-        const coachIds: string[] = [];
-
-        if (athlete?.coach_id) coachIds.push(athlete.coach_id);
-
-        const { data: adminCoach } = await admin
-          .from("profiles")
-          .select("id")
-          .eq("role", "admin");
-
-        for (const c of adminCoach ?? []) {
-          if (!coachIds.includes(c.id)) coachIds.push(c.id);
-        }
-
-        targetUserIds = coachIds;
-      }
-    } else if (type === "checkin") {
-      if (athleteId) {
-        const { data: athlete } = await admin
-          .from("profiles")
-          .select("coach_id")
-          .eq("id", athleteId)
-          .single();
-
-        const coachIds: string[] = [];
-
-        if (athlete?.coach_id) coachIds.push(athlete.coach_id);
-
-        const { data: adminCoach } = await admin
-          .from("profiles")
-          .select("id")
-          .eq("role", "admin");
-
-        for (const c of adminCoach ?? []) {
-          if (!coachIds.includes(c.id)) coachIds.push(c.id);
-        }
-
-        targetUserIds = coachIds;
-      }
-    } else if (type === "plan") {
-      if (athleteId) {
-        targetUserIds = [athleteId];
-      }
-    }
-
-    if (senderUserId) {
-      targetUserIds = targetUserIds.filter((id) => id !== senderUserId);
-    }
-
-    const payload: PushPayload = {
-      title: title || "CoachFlow",
-      body: message || "Neue Benachrichtigung",
-      url,
-    };
+    const targetUserIds = await buildTargets(body);
+    const payload = buildPayload(body);
 
     await sendToUserIds(targetUserIds, payload);
 
-    return NextResponse.json({ ok: true, sentTo: targetUserIds });
+    return NextResponse.json({
+      ok: true,
+      sentTo: targetUserIds,
+      payload,
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || "Serverfehler" },

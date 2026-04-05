@@ -11,6 +11,7 @@ self.addEventListener("push", function (event) {
     title: "CoachFlow",
     body: "Neue Benachrichtigung",
     url: "/",
+    type: "default",
   };
 
   try {
@@ -24,6 +25,7 @@ self.addEventListener("push", function (event) {
       body: data.body,
       icon: "/icon-192.png",
       badge: "/icon-192.png",
+      tag: data.type || "default",
       data: {
         url: data.url || "/",
       },

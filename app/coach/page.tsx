@@ -225,6 +225,9 @@ useEffect(() => {
   const [editingLayout, setEditingLayout] = useState(false);
   const [savingLayout, setSavingLayout] = useState(false);
 
+  const [broadcastText, setBroadcastText] = useState("");
+  const [sendingBroadcast, setSendingBroadcast] = useState(false);
+
 
   useEffect(() => {
     const init = async () => {
@@ -502,9 +505,8 @@ await fetch("/api/push/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    type: "plan",
+    type: "plan_uploaded",
     athleteId: selected.id,
-    senderRole: "coach",
     senderUserId: me?.id || null,
     title: "Neuer Plan verfügbar",
     message: `Ein neuer ${planType === "training" ? "Trainingsplan" : planType === "nutrition" ? "Ernährungsplan" : "Plan"} wurde hochgeladen.`,
@@ -571,6 +573,53 @@ await fetch("/api/push/send", {
   const sendMessage = async () => {
     setInfo("");
 
+const sendBroadcast = async () => {
+  setInfo("");
+
+  if (!broadcastText.trim()) {
+    setInfo("Fehler: Bitte zuerst eine Nachricht an alle eingeben.");
+    return;
+  }
+
+  setSendingBroadcast(true);
+
+  try {
+    const localCreatedAt = new Date().toLocaleString("de-DE");
+
+    const { error } = await supabase.from("messages").insert({
+      athlete_id: null,
+      sender_role: "coach",
+      content: broadcastText.trim(),
+      is_seen: false,
+      local_created_at: localCreatedAt,
+    });
+
+    if (error) {
+      setInfo("Fehler: " + error.message);
+      return;
+    }
+
+    await fetch("/api/push/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "broadcast_message",
+        senderUserId: me?.id || null,
+        title: "Neue Nachricht an alle",
+        message: broadcastText.trim(),
+        url: `/athlete`,
+      }),
+    });
+
+    setBroadcastText("");
+    setInfo("Nachricht an alle gesendet.");
+  } finally {
+    setSendingBroadcast(false);
+  }
+};
+
     if (!selected) {
       setInfo("Fehler: Kein Athlet ausgewählt.");
       return;
@@ -602,9 +651,8 @@ await fetch("/api/push/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    type: "message",
+    type: "message_from_coach",
     athleteId: selected.id,
-    senderRole: "coach",
     senderUserId: me?.id || null,
     title: "Neue Nachricht vom Coach",
     message: messageText.trim(),
@@ -1135,6 +1183,25 @@ await fetch("/api/push/send", {
         content: (
           <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "messages")?.width || "full")}`} style={{ ...sectionStyle("#60a5fa"), minWidth: 0 }}>
             <h2>Nachrichten</h2>
+
+<div className="item" style={{ marginBottom: 16 }}>
+  <strong>Nachricht an alle Athleten</strong>
+  <textarea
+    placeholder="Nachricht an alle schreiben..."
+    value={broadcastText}
+    onChange={(e) => setBroadcastText(e.target.value)}
+    style={{ marginTop: 10 }}
+  />
+  <div className="button-row" style={{ marginTop: 10 }}>
+    <button
+      className="btn btn-primary"
+      onClick={sendBroadcast}
+      disabled={sendingBroadcast}
+    >
+      {sendingBroadcast ? "Sende..." : "An alle senden"}
+    </button>
+  </div>
+</div>
 
             {messages.length === 0 ? (
               <p className="muted">Keine Nachrichten vorhanden.</p>

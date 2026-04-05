@@ -386,9 +386,8 @@ await fetch("/api/push/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    type: "checkin",
+    type: "checkin_created",
     athleteId: profile.id,
-    senderRole: "athlete",
     senderUserId: profile.id,
     title: "Neuer Check-in eingegangen",
     message: `Ein neuer Check-in wurde von ${profile.full_name || "einem Athleten"} eingereicht.`,
@@ -450,9 +449,8 @@ await fetch("/api/push/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    type: "message",
+    type: "message_from_athlete",
     athleteId: profile.id,
-    senderRole: "athlete",
     senderUserId: profile.id,
     title: "Neue Nachricht vom Athleten",
     message: messageText.trim(),
