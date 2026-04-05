@@ -1,7 +1,8 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import PushEnableButton from "@/components/PushEnableButton";
+import { Suspense, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Header, BackToDashboard } from "@/components/Header";
@@ -495,6 +496,21 @@ useEffect(() => {
         return;
       }
 
+await fetch("/api/push/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    type: "plan",
+    athleteId: selected.id,
+    senderRole: "coach",
+    senderUserId: me?.id || null,
+    title: "Neuer Plan verfügbar",
+    message: `Ein neuer ${planType === "training" ? "Trainingsplan" : planType === "nutrition" ? "Ernährungsplan" : "Plan"} wurde hochgeladen.`,
+    url: `/athlete`,
+  }),
+});
       setFile(null);
       setPlanNote("");
       setInfo("Plan hochgeladen.");
@@ -580,6 +596,21 @@ useEffect(() => {
       return;
     }
 
+await fetch("/api/push/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    type: "message",
+    athleteId: selected.id,
+    senderRole: "coach",
+    senderUserId: me?.id || null,
+    title: "Neue Nachricht vom Coach",
+    message: messageText.trim(),
+    url: `/athlete`,
+  }),
+});
     setMessageText("");
     setInfo("Nachricht gespeichert.");
     await loadAthleteData(selected.id);
@@ -1388,6 +1419,7 @@ useEffect(() => {
       />
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
+<PushEnableButton />
 
       <LayoutEditor
         isAdmin={me?.role === "admin"}

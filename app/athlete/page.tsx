@@ -1,5 +1,6 @@
 "use client";
 
+import PushEnableButton from "@/components/PushEnableButton";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -379,6 +380,21 @@ export default function AthletePage() {
         }
       }
 
+await fetch("/api/push/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    type: "checkin",
+    athleteId: profile.id,
+    senderRole: "athlete",
+    senderUserId: profile.id,
+    title: "Neuer Check-in eingegangen",
+    message: `Ein neuer Check-in wurde von ${profile.full_name || "einem Athleten"} eingereicht.`,
+    url: `/coach?athlete=${profile.id}`,
+  }),
+});
       setInfo("Check-in gespeichert.");
       const d = new Date();
       const offset = d.getTimezoneOffset();
@@ -428,6 +444,21 @@ export default function AthletePage() {
       return;
     }
 
+await fetch("/api/push/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    type: "message",
+    athleteId: profile.id,
+    senderRole: "athlete",
+    senderUserId: profile.id,
+    title: "Neue Nachricht vom Athleten",
+    message: messageText.trim(),
+    url: `/coach?athlete=${profile.id}`,
+  }),
+});
     setMessageText("");
     setInfo("Nachricht gesendet.");
     await loadAthleteData(profile.id);
@@ -923,6 +954,7 @@ export default function AthletePage() {
       />
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
+<PushEnableButton />
 
       {loading ? (
         <section className="card">
