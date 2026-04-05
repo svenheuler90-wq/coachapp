@@ -1665,8 +1665,10 @@ const sendBroadcast = async () => {
             );
           })}
         </section>
-      )}
       </div>
+     </>
+    )}
+     
     </main>
   </AppShell>
   );
