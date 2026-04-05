@@ -700,7 +700,7 @@ export default function DashboardPage() {
   );
 
   return (
-  <Appshell role={me?.role === "athlete" ? "athlete" : me?.role === "admin" ? "admin" : "coach"}>
+  <AppShell role={me?.role === "athlete" ? "athlete" : me?.role === "admin" ? "admin" : "coach"}>
     <main className="page">
       <Header
         title={me?.role === "admin" ? "Premium Dashboard – Coach 1" : "Premium Dashboard – Coach 2"}
