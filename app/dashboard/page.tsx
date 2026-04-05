@@ -1,5 +1,6 @@
 "use client";
 
+import AppShell from "@/components/AppShell";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -699,6 +700,7 @@ export default function DashboardPage() {
   );
 
   return (
+  <Appshell role={me?.role === "athlete" ? "athlete" : me?.role === "admin" ? "admin" : "coach"}>
     <main className="page">
       <Header
         title={me?.role === "admin" ? "Premium Dashboard – Coach 1" : "Premium Dashboard – Coach 2"}
@@ -747,5 +749,6 @@ export default function DashboardPage() {
         </section>
       )}
     </main>
+  </AppShell>
   );
 }

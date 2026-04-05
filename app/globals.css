@@ -249,3 +249,49 @@ label {
     grid-column: span 1;
   }
 }
+.show-mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .show-mobile-only {
+    display: block;
+  }
+
+  .page {
+    padding: 14px;
+  }
+
+  .grid.two,
+  .grid.three,
+  .grid.four {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .card {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  .stat-card .stat-value {
+    font-size: 24px;
+  }
+}
