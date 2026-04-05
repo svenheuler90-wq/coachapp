@@ -1,5 +1,6 @@
 "use client";
 
+import AppShell from "@/components/AppShell";
 import PushEnableButton from "@/components/PushEnableButton";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -933,6 +934,7 @@ await fetch("/api/push/send", {
   );
 
   return (
+  <AppShell role="athlete">
     <main className="page">
       <Header
         title="Athleten Dashboard"
@@ -1004,5 +1006,6 @@ await fetch("/api/push/send", {
         </>
       ) : null}
     </main>
+  </AppShell>
   );
 }
