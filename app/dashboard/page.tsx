@@ -367,7 +367,9 @@ export default function DashboardPage() {
       return String(d).slice(0, 10) === todayIso;
     }).length;
 
-    const unreadMessages = messages.filter((m) => !m.is_seen).length;
+    const unreadMessages = messages.filter(
+  (m) => m.sender_role === "athlete" && !m.is_seen
+).length;
 
     const overdueAthletes = athleteCards.filter((a) => a.isOverdue).length;
 
@@ -704,31 +706,24 @@ export default function DashboardPage() {
   <AppShell role={me?.role === "athlete" ? "athlete" : me?.role === "admin" ? "admin" : "coach"}>
     <main className="page">
       <Header
-        title={me?.role === "admin" ? "Premium Dashboard – Coach 1" : "Premium Dashboard – Coach 2"}
-        subtitle={
-          me?.role === "admin"
-            ? "Gesamtüberblick über Coaches, Athleten, Check-ins und Nachrichten."
-            : "Übersicht über deine Athleten, offene Punkte und neue Aktivitäten."
-        }
-        actions={
-          <button className="btn btn-secondary" onClick={() => supabase.auth.signOut().then(() => router.replace("/login"))}>
-            Logout
-          </button>
-        }
-      />
+  title="Dashboard"
+  subtitle={me?.full_name || ""}
+/>
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
 
-      <LayoutEditor
-        isAdmin={me?.role === "admin"}
-        editing={editingLayout}
-        setEditing={setEditingLayout}
-        layout={layout}
-        setLayout={setLayout}
-        onSave={saveLayout}
-        labels={layoutLabels}
-        saving={savingLayout}
-      />
+     <div className="desktop-only">
+  <LayoutEditor
+    isAdmin={me?.role === "admin"}
+    editing={editingLayout}
+    setEditing={setEditingLayout}
+    layout={layout}
+    setLayout={setLayout}
+    onSave={saveLayout}
+    labels={layoutLabels}
+    saving={savingLayout}
+  />
+</div>
 
       {loading ? (
   <section className="card">
@@ -738,44 +733,52 @@ export default function DashboardPage() {
   <>
     {/* MOBILE */}
     <div className="mobile-stat-strip">
-      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
-        <div className="mobile-stat-label">Athleten</div>
-        <div className="mobile-stat-value">{athletes.length}</div>
-      </div>
+  <Link
+    href="/coach"
+    className="mobile-stat-box"
+    style={{ borderLeft: "4px solid #60a5fa", textDecoration: "none" }}
+  >
+    <div className="mobile-stat-label">Athleten</div>
+    <div className="mobile-stat-value">{athletes.length}</div>
+  </Link>
 
-      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
-        <div className="mobile-stat-label">Check-ins</div>
-        <div className="mobile-stat-value">{checkins.length}</div>
-      </div>
+  <Link
+    href="/coach/checkins"
+    className="mobile-stat-box"
+    style={{ borderLeft: "4px solid #22c55e", textDecoration: "none" }}
+  >
+    <div className="mobile-stat-label">Check-ins</div>
+    <div className="mobile-stat-value">{kpis.newCheckinsToday}</div>
+  </Link>
 
-      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
-        <div className="mobile-stat-label">Nachrichten</div>
-        <div className="mobile-stat-value">{messages.length}</div>
-      </div>
+  <Link
+    href="/coach/messages"
+    className="mobile-stat-box"
+    style={{ borderLeft: "4px solid #f59e0b", textDecoration: "none" }}
+  >
+    <div className="mobile-stat-label">Nachrichten</div>
+    <div className="mobile-stat-value">{kpis.ureadMessages}</div>
+  </Link>
 
-      <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
-        <div className="mobile-stat-label">Coaches</div>
-        <div className="mobile-stat-value">{coaches.length}</div>
-      </div>
+  {me?.role === "admin" ? (
+    <div
+      className="mobile-stat-box"
+      style={{ borderLeft: "4px solid #ec4899" }}
+    >
+      <div className="mobile-stat-label">Coaches</div>
+      <div className="mobile-stat-value">{coaches.length}</div>
     </div>
-
-    <div className="mobile-home-grid">
-      <Link href="/coach" className="mobile-home-card">
-        <div className="mobile-home-card-title">Athleten</div>
-      </Link>
-
-      <Link href="/coach/messages" className="mobile-home-card">
-        <div className="mobile-home-card-title">Nachrichten</div>
-      </Link>
-
-      <Link href="/coach/checkins" className="mobile-home-card">
-        <div className="mobile-home-card-title">Check-ins</div>
-      </Link>
-
-      <Link href="/coach/more" className="mobile-home-card">
-        <div className="mobile-home-card-title">Mehr</div>
-      </Link>
-    </div>
+  ) : (
+    <Link
+      href="/coach/more"
+      className="mobile-stat-box"
+      style={{ borderLeft: "4px solid #ec4899", textDecoration: "none" }}
+    >
+      <div className="mobile-stat-label">Mehr</div>
+      <div className="mobile-stat-value">›</div>
+    </Link>
+  )}
+</div>
 
     {/* DESKTOP */}
     <div className="desktop-only">
