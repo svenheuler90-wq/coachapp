@@ -407,11 +407,6 @@ setTimeout(() => {
       supabase.from("progress_photos").select("*").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
       supabase.from("messages").select("*").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
 
-	await supabase
-  .from("messages")
-  .update({ is_seen: true })
-  .eq("athlete_id", athleteId)
-  .eq("sender_role", "athlete");
     ]);
 
     if (checkinsError || plansError || photosError || messagesError) {
@@ -430,6 +425,12 @@ setTimeout(() => {
     setPlans(plansData || []);
     setPhotos(photosData || []);
     setMessages(messagesData || []);
+
+await supabase
+  .from("messages")
+  .update({ is_seen: true })
+  .eq("athlete_id", athleteId)
+  .eq("sender_role", "athlete");
   };
 
   const saveAthleteProfile = async () => {
