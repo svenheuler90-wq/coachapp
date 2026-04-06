@@ -161,9 +161,20 @@ function CoachPageContent() {
   const [athleteIdFromUrl, setAthleteIdFromUrl] = useState("");
 
 useEffect(() => {
-  if (typeof window === "undefined") return;
-  const search = new URLSearchParams(window.location.search);
-  setAthleteIdFromUrl(search.get("athlete") || "");
+  if (!athleteIdFromUrl || athletes.length === 0) return;
+
+  const found = athletes.find((a) => a.id === athleteIdFromUrl);
+
+  if (found && found.id !== selected?.id) {
+    applySelectedAthlete(found);
+    loadAthleteData(found.id);
+  }
+}, [athleteIdFromUrl, athletes]);
+
+  updateAthleteFromUrl();
+
+  window.addEventListener("popstate", updateAthleteFromUrl);
+  return () => window.removeEventListener("popstate", updateAthleteFromUrl);
 }, []);
 
   const [athletes, setAthletes] = useState<any[]>([]);
@@ -186,6 +197,7 @@ useEffect(() => {
 
   const [planType, setPlanType] = useState("training");
   const [planNote, setPlanNote] = useState("");
+  const [planStartDate, setPlanStartDate] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
@@ -345,6 +357,16 @@ useEffect(() => {
       applySelectedAthlete(athleteList[0]);
       await loadAthleteData(athleteList[0].id);
     }
+
+setTimeout(() => {
+  if (athleteIdFromUrl) {
+    const found = athleteList.find((a) => a.id === athleteIdFromUrl);
+    if (found) {
+      applySelectedAthlete(found);
+      loadAthleteData(found.id);
+    }
+  }
+}, 0);
   };
 
   const applySelectedAthlete = (athlete: any) => {
@@ -370,6 +392,12 @@ useEffect(() => {
       supabase.from("plans").select("*").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
       supabase.from("progress_photos").select("*").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
       supabase.from("messages").select("*").eq("athlete_id", athleteId).order("created_at", { ascending: false }),
+
+	await supabase
+  .from("messages")
+  .update({ is_seen: true })
+  .eq("athlete_id", athleteId)
+  .eq("sender_role", "athlete");
     ]);
 
     if (checkinsError || plansError || photosError || messagesError) {
@@ -486,14 +514,15 @@ useEffect(() => {
       const localCreatedAt = new Date().toLocaleString("de-DE");
 
       const { error: dbError } = await supabase.from("plans").insert({
-        athlete_id: selected.id,
-        type: planType,
-        file_url: publicUrlData.publicUrl,
-        file_name: file.name,
-        title: file.name,
-        note: planNote || null,
-        local_created_at: localCreatedAt,
-      });
+  athlete_id: selected.id,
+  type: planType,
+  file_url: publicUrlData.publicUrl,
+  file_name: file.name,
+  title: file.name,
+  note: planNote || null,
+  valid_from: planStartDate || null,
+  local_created_at: localCreatedAt,
+});
 
       if (dbError) {
         setInfo("Fehler: DB Fehler: " + dbError.message);
@@ -517,6 +546,7 @@ await fetch("/api/push/send", {
 });
       setFile(null);
       setPlanNote("");
+      setPlanStartDate("");
       setInfo("Plan hochgeladen.");
       await loadAthleteData(selected.id);
     } catch {
@@ -633,13 +663,15 @@ const sendBroadcast = async () => {
   try {
     const localCreatedAt = new Date().toLocaleString("de-DE");
 
-    const { error } = await supabase.from("messages").insert({
-      athlete_id: null,
+    const inserts = athletes.map((a) => ({
+      athlete_id: a.id,
       sender_role: "coach",
       content: broadcastText.trim(),
       is_seen: false,
       local_created_at: localCreatedAt,
-    });
+    }));
+
+    const { error } = await supabase.from("messages").insert(inserts);
 
     if (error) {
       setInfo("Fehler: " + error.message);
@@ -654,7 +686,7 @@ const sendBroadcast = async () => {
       body: JSON.stringify({
         type: "broadcast_message",
         senderUserId: me?.id || null,
-        title: "Neue Nachricht an alle",
+        title: "Neue Nachricht",
         message: broadcastText.trim(),
         url: `/athlete`,
       }),
@@ -757,28 +789,33 @@ const sendBroadcast = async () => {
       return;
     }
 
-    const payload = {
-      date: editCheckinDateTime ? editCheckinDateTime.slice(0, 10) : null,
-      local_datetime: editCheckinDateTime || null,
-      weight_kg: parsedEditWeight,
-      blood_pressure_sys: editBloodPressureSys ? Number(editBloodPressureSys) : null,
-      blood_pressure_dia: editBloodPressureDia ? Number(editBloodPressureDia) : null,
-      blood_pressure:
-        editBloodPressureSys && editBloodPressureDia
-          ? `${editBloodPressureSys}/${editBloodPressureDia}`
-          : null,
-      pulse_bpm: editPulse ? Number(editPulse) : null,
-      blood_sugar: editSugar ? Number(editSugar) : null,
-      motivation: editMotivation,
-      well_being: editWellBeing,
-      sleep_quality: editSleepQuality,
-      stool_quality: editStoolQuality,
-      stool_times: Number(editStoolTimes),
-      stool_every_days: Number(editStoolEveryDays),
-      digestion: editDigestion,
-      hunger: editHunger === "true",
-      hunger_scale: Number(editHungerScale),
-      additional_comment: editComment || null,
+    const payload: any = {};
+
+if (editCheckinDateTime) {
+  payload.date = editCheckinDateTime.slice(0, 10);
+  payload.local_datetime = editCheckinDateTime;
+}
+
+if (editWeight) payload.weight_kg = parsedEditWeight;
+if (editBloodPressureSys) payload.blood_pressure_sys = Number(editBloodPressureSys);
+if (editBloodPressureDia) payload.blood_pressure_dia = Number(editBloodPressureDia);
+if (editPulse) payload.pulse_bpm = Number(editPulse);
+if (editSugar) payload.blood_sugar = Number(editSugar);
+
+if (editMotivation) payload.motivation = editMotivation;
+if (editWellBeing) payload.well_being = editWellBeing;
+if (editSleepQuality) payload.sleep_quality = editSleepQuality;
+
+if (editStoolQuality) payload.stool_quality = editStoolQuality;
+if (editStoolTimes) payload.stool_times = Number(editStoolTimes);
+if (editStoolEveryDays) payload.stool_every_days = Number(editStoolEveryDays);
+
+if (editDigestion) payload.digestion = editDigestion;
+
+payload.hunger = editHunger === "true";
+if (editHungerScale) payload.hunger_scale = Number(editHungerScale);
+
+if (editComment) payload.additional_comment = editComment;
     };
 
     const { error } = await supabase.from("checkins").update(payload).eq("id", editingCheckinId);
@@ -1088,6 +1125,9 @@ const sendBroadcast = async () => {
                                 ? new Date(plan.created_at).toLocaleString("de-DE")
                                 : "-")}
                           </div>
+			<div className="muted">
+  Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
+</div>
 
                           {plan.file_url ? (
                             <a href={plan.file_url} target="_blank" rel="noreferrer">
@@ -1128,6 +1168,9 @@ const sendBroadcast = async () => {
                                 ? new Date(plan.created_at).toLocaleString("de-DE")
                                 : "-")}
                           </div>
+			<div className="muted">
+  Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
+</div>
 
                           {plan.file_url ? (
                             <a href={plan.file_url} target="_blank" rel="noreferrer">
@@ -1164,14 +1207,21 @@ const sendBroadcast = async () => {
             </select>
 
             <label>Bemerkung</label>
-            <textarea
-              value={planNote}
-              onChange={(e) => setPlanNote(e.target.value)}
-              placeholder="Bemerkung zur Datei..."
-            />
+<textarea
+  value={planNote}
+  onChange={(e) => setPlanNote(e.target.value)}
+  placeholder="Bemerkung zur Datei..."
+/>
 
-            <label>Datei</label>
-            <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+<label>Gültig ab</label>
+<input
+  type="date"
+  value={planStartDate}
+  onChange={(e) => setPlanStartDate(e.target.value)}
+/>
+
+<label>Datei</label>
+<input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
 
             <div className="button-row">
               <button className="btn btn-primary" onClick={uploadAndSavePlan} disabled={uploading}>
@@ -1490,9 +1540,7 @@ const sendBroadcast = async () => {
       />
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
-<PushEnableButton />
 
-<div className="mobile-stat-strip">
   <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
     <div className="mobile-stat-label">Athleten</div>
     <div className="mobile-stat-value">{athletes.length}</div>
@@ -1500,13 +1548,16 @@ const sendBroadcast = async () => {
 
   <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
     <div className="mobile-stat-label">Check-ins</div>
-    <div className="mobile-stat-value">{checkins.length}</div>
-  </div>
+    <div className="mobile-stat-value">
+  {checkins.filter(c => !c.is_seen).length}
+</div>
 
   <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
-    <div className="mobile-stat-label">Nachrichten</div>
-    <div className="mobile-stat-value">{messages.length}</div>
+  <div className="mobile-stat-label">Nachrichten</div>
+  <div className="mobile-stat-value">
+    {messages.filter(m => m.sender_role === "athlete" && !m.is_seen).length}
   </div>
+</div>
 
   <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
     <div className="mobile-stat-label">Pläne</div>
@@ -1518,7 +1569,7 @@ const sendBroadcast = async () => {
   <Link href="/coach/messages" className="mobile-home-card">
     <div className="mobile-home-card-title">Nachrichten</div>
     <div className="mobile-home-card-text">
-      Athleten-Nachrichten lesen, beantworten und Broadcast senden.
+      Athleten-Nachrichten lesen und beantworten.
     </div>
   </Link>
 
@@ -1532,28 +1583,30 @@ const sendBroadcast = async () => {
   <Link href="/coach" className="mobile-home-card">
     <div className="mobile-home-card-title">Athleten</div>
     <div className="mobile-home-card-text">
-      Athleten öffnen, bearbeiten und direkt verwalten.
+      Athleten öffnen, bearbeiten und verwalten.
     </div>
   </Link>
 
   <Link href="/coach/more" className="mobile-home-card">
     <div className="mobile-home-card-title">Mehr</div>
     <div className="mobile-home-card-text">
-      Broadcast, weitere Aktionen und spätere Extras.
+      Einstellungen und weitere Optionen.
     </div>
   </Link>
 </div>
 
-            <LayoutEditor
-        isAdmin={me?.role === "admin"}
-        editing={editingLayout}
-        setEditing={setEditingLayout}
-        layout={layout}
-        setLayout={setLayout}
-        onSave={saveLayout}
-        labels={layoutLabels}
-        saving={savingLayout}
-      />
+            <div className="desktop-only">
+  <LayoutEditor
+    isAdmin={me?.role === "admin"}
+    editing={editingLayout}
+    setEditing={setEditingLayout}
+    layout={layout}
+    setLayout={setLayout}
+    onSave={saveLayout}
+    labels={layoutLabels}
+    saving={savingLayout}
+  />
+</div>
 
       <div className="desktop-only">
         {!selected ? (
