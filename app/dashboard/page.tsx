@@ -757,7 +757,7 @@ export default function DashboardPage() {
     style={{ borderLeft: "4px solid #f59e0b", textDecoration: "none" }}
   >
     <div className="mobile-stat-label">Nachrichten</div>
-    <div className="mobile-stat-value">{kpis.ureadMessages}</div>
+    <div className="mobile-stat-value">{kpis.unreadMessages}</div>
   </Link>
 
   {me?.role === "admin" ? (
