@@ -882,416 +882,247 @@ if (editComment) payload.additional_comment = editComment;
   const { recent: recentCheckins, older: olderCheckins } = splitRecentAndOlder(checkins);
   const { recent: recentPlans, older: olderPlans } = splitRecentAndOlder(plans);
 
-  const sections = sortSectionsByLayout(
-    [
-      {
-        id: "checkins",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "checkins")?.width || "half")}`} style={{ ...sectionStyle("#22c55e"), minWidth: 0 }}>
-            <h2>Check-ins</h2>
+const sections = sortSectionsByLayout(
+  [
+    {
+      id: "checkins",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "checkins")?.width || "half")}`} style={{ ...sectionStyle("#22c55e"), minWidth: 0 }}>
+          <h2>Check-ins</h2>
 
-            {checkins.length === 0 ? (
-              <p className="muted">Noch keine Check-ins vorhanden.</p>
-            ) : (
-              <>
-                <div className="stack">
-                  {recentCheckins.map((checkin) => {
-                    const linkedPhotos = photos.filter((photo) => photo.checkin_id === checkin.id);
+          {checkins.length === 0 ? (
+            <p className="muted">Noch keine Check-ins vorhanden.</p>
+          ) : (
+            <>
+              <div className="stack">
+                {recentCheckins.map((checkin) => {
+                  const linkedPhotos = photos.filter((photo) => photo.checkin_id === checkin.id);
 
-                    return (
-                      <div key={checkin.id} className="item">
-                        {editingCheckinId === checkin.id ? (
-                          <>
-                            <label>Datum & Uhrzeit</label>
-                            <input
-                              type="datetime-local"
-                              value={editCheckinDateTime}
-                              onChange={(e) => setEditCheckinDateTime(e.target.value)}
-                            />
-
-                            <label>Gewicht (kg)</label>
-                            <input value={editWeight} onChange={(e) => setEditWeight(e.target.value)} />
-
-                            <label>Blutdruck (SYS / DIA mmHg)</label>
-                            <div className="grid two">
-                              <input value={editBloodPressureSys} onChange={(e) => setEditBloodPressureSys(e.target.value)} placeholder="SYS" />
-                              <input value={editBloodPressureDia} onChange={(e) => setEditBloodPressureDia(e.target.value)} placeholder="DIA" />
-                            </div>
-
-                            <label>Puls (bpm)</label>
-                            <input value={editPulse} onChange={(e) => setEditPulse(e.target.value)} />
-
-                            <label>Blutzucker (mg/dL)</label>
-                            <input value={editSugar} onChange={(e) => setEditSugar(e.target.value)} />
-
-                            <label>Hunger</label>
-                            <select value={editHunger} onChange={(e) => setEditHunger(e.target.value)}>
-                              <option value="false">Nein</option>
-                              <option value="true">Ja</option>
-                            </select>
-
-                            <label>Hunger-Skala (1-10)</label>
-                            <select
-                              value={editHungerScale}
-                              onChange={(e) => setEditHungerScale(e.target.value)}
-                              disabled={editHunger !== "true"}
-                            >
-                              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                                <option key={n} value={n}>
-                                  {n}
-                                </option>
-                              ))}
-                            </select>
-
-                            <label>Motivation</label>
-                            <select value={editMotivation} onChange={(e) => setEditMotivation(e.target.value)}>
-                              <option value="sehr_niedrig">Sehr niedrig</option>
-                              <option value="niedrig">Niedrig</option>
-                              <option value="mittel">Mittel</option>
-                              <option value="hoch">Hoch</option>
-                              <option value="sehr_hoch">Sehr hoch</option>
-                            </select>
-
-                            <label>Wohlbefinden</label>
-                            <select value={editWellBeing} onChange={(e) => setEditWellBeing(e.target.value)}>
-                              <option value="sehr_schlecht">Sehr schlecht</option>
-                              <option value="schlecht">Schlecht</option>
-                              <option value="mittel">Mittel</option>
-                              <option value="gut">Gut</option>
-                              <option value="sehr_gut">Sehr gut</option>
-                            </select>
-
-                            <label>Schlaf</label>
-                            <select value={editSleepQuality} onChange={(e) => setEditSleepQuality(e.target.value)}>
-                              <option value="sehr_schlecht">Sehr schlecht</option>
-                              <option value="schlecht">Schlecht</option>
-                              <option value="mittel">Mittel</option>
-                              <option value="gut">Gut</option>
-                              <option value="sehr_gut">Sehr gut</option>
-                            </select>
-
-                            <label>Stuhlgang</label>
-                            <select value={editStoolQuality} onChange={(e) => setEditStoolQuality(e.target.value)}>
-                              <option value="verstopfung">Verstopfung</option>
-                              <option value="hart">Hart</option>
-                              <option value="normal">Normal</option>
-                              <option value="weich">Weich</option>
-                              <option value="durchfall">Durchfall</option>
-                            </select>
-
-                            <label>Wie oft</label>
-                            <input value={editStoolTimes} onChange={(e) => setEditStoolTimes(e.target.value)} />
-
-                            <label>Alle wie viele Tage</label>
-                            <input value={editStoolEveryDays} onChange={(e) => setEditStoolEveryDays(e.target.value)} />
-
-                            <label>Verdauung</label>
-                            <select value={editDigestion} onChange={(e) => setEditDigestion(e.target.value)}>
-                              {DIGESTION_OPTIONS.map((d) => (
-                                <option key={d} value={d}>
-                                  {d}
-                                </option>
-                              ))}
-                            </select>
-
-                            <label>Kommentar</label>
-                            <textarea value={editComment} onChange={(e) => setEditComment(e.target.value)} />
-
-                            <div className="button-row">
-                              <button className="btn btn-primary" onClick={saveCheckinEdit}>
-                                Speichern
-                              </button>
-                              <button className="btn btn-secondary" onClick={() => setEditingCheckinId(null)}>
-                                Abbrechen
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="muted">
-                              {checkin.local_datetime
-                                ? formatDateTimeDE(checkin.local_datetime)
-                                : checkin.created_at
-                                  ? formatDateTimeDE(checkin.created_at)
-                                  : checkin.date || "-"}
-                            </div>
-                            <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                            <div className="muted">
-                              Blutdruck:{" "}
-                              {checkin.blood_pressure_sys && checkin.blood_pressure_dia
-                                ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
-                                : checkin.blood_pressure || "-"}
-                            </div>
-                            <div className="muted">Puls: {checkin.pulse_bpm ?? "-"} bpm</div>
-                            <div className="muted">Blutzucker: {checkin.blood_sugar ?? "-"} mg/dL</div>
-                            <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
-                            <div className="muted">Hunger-Skala: {checkin.hunger_scale ?? "-"}</div>
-                            <div className="muted">Stuhlgang: {checkin.stool_quality || "-"}</div>
-                            <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                            <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
-                            <div className="muted">Verdauung: {checkin.digestion || "-"}</div>
-                            <div className="muted">Kommentar: {checkin.additional_comment || "-"}</div>
-
-                            <div className="button-row" style={{ marginTop: 10 }}>
-                              <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
-                                Bearbeiten
-                              </button>
-                              <button className="btn btn-secondary" onClick={() => deleteCheckin(checkin.id)}>
-                                Löschen
-                              </button>
-                            </div>
-
-                            {renderPhotoGallery(linkedPhotos)}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {olderCheckins.length > 0 ? (
-                  <details style={{ marginTop: 12 }}>
-                    <summary>Ältere Check-ins anzeigen ({olderCheckins.length})</summary>
-                    <div className="stack" style={{ marginTop: 12 }}>
-                      {olderCheckins.map((checkin) => {
-                        const linkedPhotos = photos.filter((photo) => photo.checkin_id === checkin.id);
-
-                        return (
-                          <div key={checkin.id} className="item">
-                            <div className="muted">
-                              {checkin.local_datetime
-                                ? formatDateTimeDE(checkin.local_datetime)
-                                : checkin.created_at
-                                  ? formatDateTimeDE(checkin.created_at)
-                                  : checkin.date || "-"}
-                            </div>
-                            <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                            <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                            <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
-                            <div className="button-row" style={{ marginTop: 10 }}>
-                              <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
-                                Bearbeiten
-                              </button>
-                              <button className="btn btn-secondary" onClick={() => deleteCheckin(checkin.id)}>
-                                Löschen
-                              </button>
-                            </div>
-
-                            {renderPhotoGallery(linkedPhotos)}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </details>
-                ) : null}
-              </>
-            )}
-          </div>
-        ),
-      },
-      {
-        id: "plans",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "plans")?.width || "half")}`} style={{ ...sectionStyle("#f59e0b"), minWidth: 0 }}>
-            <h2>Pläne</h2>
-
-            {plans.length === 0 ? (
-              <p className="muted">Keine Pläne vorhanden.</p>
-            ) : (
-              <>
-                <div className="stack">
-                  {recentPlans.map((plan) => (
-                    <div key={plan.id} className="item">
-                      {editingPlanId === plan.id ? (
+                  return (
+                    <div key={checkin.id} className="item">
+                      {editingCheckinId === checkin.id ? (
                         <>
-                          <select value={editingPlanType} onChange={(e) => setEditingPlanType(e.target.value)}>
-                            <option value="training">Training</option>
-                            <option value="nutrition">Ernährung</option>
-                            <option value="other">Sonstiges</option>
+                          <label>Datum & Uhrzeit</label>
+                          <input
+                            type="datetime-local"
+                            value={editCheckinDateTime}
+                            onChange={(e) => setEditCheckinDateTime(e.target.value)}
+                          />
+
+                          <label>Gewicht (kg)</label>
+                          <input value={editWeight} onChange={(e) => setEditWeight(e.target.value)} />
+
+                          <label>Blutdruck (SYS / DIA mmHg)</label>
+                          <div className="grid two">
+                            <input value={editBloodPressureSys} onChange={(e) => setEditBloodPressureSys(e.target.value)} placeholder="SYS" />
+                            <input value={editBloodPressureDia} onChange={(e) => setEditBloodPressureDia(e.target.value)} placeholder="DIA" />
+                          </div>
+
+                          <label>Puls (bpm)</label>
+                          <input value={editPulse} onChange={(e) => setEditPulse(e.target.value)} />
+
+                          <label>Blutzucker (mg/dL)</label>
+                          <input value={editSugar} onChange={(e) => setEditSugar(e.target.value)} />
+
+                          <label>Hunger</label>
+                          <select value={editHunger} onChange={(e) => setEditHunger(e.target.value)}>
+                            <option value="false">Nein</option>
+                            <option value="true">Ja</option>
                           </select>
 
-                          <label>Bemerkung</label>
-                          <textarea value={editingPlanNote} onChange={(e) => setEditingPlanNote(e.target.value)} />
+                          <label>Hunger-Skala (1-10)</label>
+                          <select
+                            value={editHungerScale}
+                            onChange={(e) => setEditHungerScale(e.target.value)}
+                            disabled={editHunger !== "true"}
+                          >
+                            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                              <option key={n} value={n}>
+                                {n}
+                              </option>
+                            ))}
+                          </select>
+
+                          <label>Motivation</label>
+                          <select value={editMotivation} onChange={(e) => setEditMotivation(e.target.value)}>
+                            <option value="sehr_niedrig">Sehr niedrig</option>
+                            <option value="niedrig">Niedrig</option>
+                            <option value="mittel">Mittel</option>
+                            <option value="hoch">Hoch</option>
+                            <option value="sehr_hoch">Sehr hoch</option>
+                          </select>
+
+                          <label>Wohlbefinden</label>
+                          <select value={editWellBeing} onChange={(e) => setEditWellBeing(e.target.value)}>
+                            <option value="sehr_schlecht">Sehr schlecht</option>
+                            <option value="schlecht">Schlecht</option>
+                            <option value="mittel">Mittel</option>
+                            <option value="gut">Gut</option>
+                            <option value="sehr_gut">Sehr gut</option>
+                          </select>
+
+                          <label>Schlaf</label>
+                          <select value={editSleepQuality} onChange={(e) => setEditSleepQuality(e.target.value)}>
+                            <option value="sehr_schlecht">Sehr schlecht</option>
+                            <option value="schlecht">Schlecht</option>
+                            <option value="mittel">Mittel</option>
+                            <option value="gut">Gut</option>
+                            <option value="sehr_gut">Sehr gut</option>
+                          </select>
+
+                          <label>Stuhlgang</label>
+                          <select value={editStoolQuality} onChange={(e) => setEditStoolQuality(e.target.value)}>
+                            <option value="verstopfung">Verstopfung</option>
+                            <option value="hart">Hart</option>
+                            <option value="normal">Normal</option>
+                            <option value="weich">Weich</option>
+                            <option value="durchfall">Durchfall</option>
+                          </select>
+
+                          <label>Wie oft</label>
+                          <input value={editStoolTimes} onChange={(e) => setEditStoolTimes(e.target.value)} />
+
+                          <label>Alle wie viele Tage</label>
+                          <input value={editStoolEveryDays} onChange={(e) => setEditStoolEveryDays(e.target.value)} />
+
+                          <label>Verdauung</label>
+                          <select value={editDigestion} onChange={(e) => setEditDigestion(e.target.value)}>
+                            {DIGESTION_OPTIONS.map((d) => (
+                              <option key={d} value={d}>
+                                {d}
+                              </option>
+                            ))}
+                          </select>
+
+                          <label>Kommentar</label>
+                          <textarea value={editComment} onChange={(e) => setEditComment(e.target.value)} />
 
                           <div className="button-row">
-                            <button className="btn btn-primary" onClick={savePlanEdit}>
+                            <button className="btn btn-primary" onClick={saveCheckinEdit}>
                               Speichern
                             </button>
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => {
-                                setEditingPlanId(null);
-                                setEditingPlanType("");
-                                setEditingPlanNote("");
-                              }}
-                            >
+                            <button className="btn btn-secondary" onClick={() => setEditingCheckinId(null)}>
                               Abbrechen
                             </button>
                           </div>
                         </>
                       ) : (
                         <>
-                          <strong>{plan.file_name || plan.title || "Plan"}</strong>
-                          <div className="muted">Typ: {plan.type || "-"}</div>
                           <div className="muted">
-                            Hochgeladen:{" "}
-                            {plan.local_created_at ||
-                              (plan.created_at
-                                ? new Date(plan.created_at).toLocaleString("de-DE")
-                                : "-")}
+                            {checkin.local_datetime
+                              ? formatDateTimeDE(checkin.local_datetime)
+                              : checkin.created_at
+                                ? formatDateTimeDE(checkin.created_at)
+                                : checkin.date || "-"}
                           </div>
-			<div className="muted">
-  Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
-</div>
-
-                          {plan.file_url ? (
-                            <a href={plan.file_url} target="_blank" rel="noreferrer">
-                              Datei öffnen
-                            </a>
-                          ) : (
-                            <div>{plan.content || "Kein Inhalt"}</div>
-                          )}
-
-                          {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
+                          <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
+                          <div className="muted">
+                            Blutdruck:{" "}
+                            {checkin.blood_pressure_sys && checkin.blood_pressure_dia
+                              ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
+                              : checkin.blood_pressure || "-"}
+                          </div>
+                          <div className="muted">Puls: {checkin.pulse_bpm ?? "-"} bpm</div>
+                          <div className="muted">Blutzucker: {checkin.blood_sugar ?? "-"} mg/dL</div>
+                          <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
+                          <div className="muted">Hunger-Skala: {checkin.hunger_scale ?? "-"}</div>
+                          <div className="muted">Stuhlgang: {checkin.stool_quality || "-"}</div>
+                          <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
+                          <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
+                          <div className="muted">Verdauung: {checkin.digestion || "-"}</div>
+                          <div className="muted">Kommentar: {checkin.additional_comment || "-"}</div>
 
                           <div className="button-row" style={{ marginTop: 10 }}>
-                            <button className="btn btn-secondary" onClick={() => startEditPlan(plan)}>
+                            <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
                               Bearbeiten
                             </button>
-                            <button className="btn btn-secondary" onClick={() => deletePlan(plan.id)}>
+                            <button className="btn btn-secondary" onClick={() => deleteCheckin(checkin.id)}>
                               Löschen
                             </button>
                           </div>
+
+                          {renderPhotoGallery(linkedPhotos)}
                         </>
                       )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
 
-                {olderPlans.length > 0 ? (
-                  <details style={{ marginTop: 12 }}>
-                    <summary>Ältere Pläne anzeigen ({olderPlans.length})</summary>
-                    <div className="stack" style={{ marginTop: 12 }}>
-                      {olderPlans.map((plan) => (
-                        <div key={plan.id} className="item">
-                          <strong>{plan.file_name || plan.title || "Plan"}</strong>
-                          <div className="muted">Typ: {plan.type || "-"}</div>
+              {olderCheckins.length > 0 ? (
+                <details style={{ marginTop: 12 }}>
+                  <summary>Ältere Check-ins anzeigen ({olderCheckins.length})</summary>
+                  <div className="stack" style={{ marginTop: 12 }}>
+                    {olderCheckins.map((checkin) => {
+                      const linkedPhotos = photos.filter((photo) => photo.checkin_id === checkin.id);
+
+                      return (
+                        <div key={checkin.id} className="item">
                           <div className="muted">
-                            Hochgeladen:{" "}
-                            {plan.local_created_at ||
-                              (plan.created_at
-                                ? new Date(plan.created_at).toLocaleString("de-DE")
-                                : "-")}
+                            {checkin.local_datetime
+                              ? formatDateTimeDE(checkin.local_datetime)
+                              : checkin.created_at
+                                ? formatDateTimeDE(checkin.created_at)
+                                : checkin.date || "-"}
                           </div>
-			<div className="muted">
-  Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
-</div>
-
-                          {plan.file_url ? (
-                            <a href={plan.file_url} target="_blank" rel="noreferrer">
-                              Datei öffnen
-                            </a>
-                          ) : (
-                            <div>{plan.content || "Kein Inhalt"}</div>
-                          )}
-
-                          {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
-
+                          <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
+                          <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
+                          <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
                           <div className="button-row" style={{ marginTop: 10 }}>
-                            <button className="btn btn-secondary" onClick={() => startEditPlan(plan)}>
+                            <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
                               Bearbeiten
                             </button>
-                            <button className="btn btn-secondary" onClick={() => deletePlan(plan.id)}>
+                            <button className="btn btn-secondary" onClick={() => deleteCheckin(checkin.id)}>
                               Löschen
                             </button>
                           </div>
+
+                          {renderPhotoGallery(linkedPhotos)}
                         </div>
-                      ))}
-                    </div>
-                  </details>
-                ) : null}
-              </>
-            )}
+                      );
+                    })}
+                  </div>
+                </details>
+              ) : null}
+            </>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "plans",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "plans")?.width || "half")}`} style={{ ...sectionStyle("#f59e0b"), minWidth: 0 }}>
+          <h2>Pläne</h2>
 
-            <h3>Neuen Plan hochladen</h3>
-            <label>Plan-Typ</label>
-            <select value={planType} onChange={(e) => setPlanType(e.target.value)}>
-              <option value="training">Training</option>
-              <option value="nutrition">Ernährung</option>
-              <option value="other">Sonstiges</option>
-            </select>
-
-            <label>Bemerkung</label>
-<textarea
-  value={planNote}
-  onChange={(e) => setPlanNote(e.target.value)}
-  placeholder="Bemerkung zur Datei..."
-/>
-
-<label>Gültig ab</label>
-<input
-  type="date"
-  value={planStartDate}
-  onChange={(e) => setPlanStartDate(e.target.value)}
-/>
-
-<label>Datei</label>
-<input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-
-            <div className="button-row">
-              <button className="btn btn-primary" onClick={uploadAndSavePlan} disabled={uploading}>
-                {uploading ? "Lade hoch..." : "Datei hochladen"}
-              </button>
-            </div>
-          </div>
-        ),
-      },
-      {
-        id: "messages",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "messages")?.width || "full")}`} style={{ ...sectionStyle("#60a5fa"), minWidth: 0 }}>
-            <h2>Nachrichten</h2>
-
-<div className="item" style={{ marginBottom: 16 }}>
-  <strong>Nachricht an alle Athleten</strong>
-  <textarea
-    placeholder="Nachricht an alle schreiben..."
-    value={broadcastText}
-    onChange={(e) => setBroadcastText(e.target.value)}
-    style={{ marginTop: 10 }}
-  />
-  <div className="button-row" style={{ marginTop: 10 }}>
-    <button
-      className="btn btn-primary"
-      onClick={sendBroadcast}
-      disabled={sendingBroadcast}
-    >
-      {sendingBroadcast ? "Sende..." : "An alle senden"}
-    </button>
-  </div>
-</div>
-
-            {messages.length === 0 ? (
-              <p className="muted">Keine Nachrichten vorhanden.</p>
-            ) : (
+          {plans.length === 0 ? (
+            <p className="muted">Keine Pläne vorhanden.</p>
+          ) : (
+            <>
               <div className="stack">
-                {messages.map((msg) => (
-                  <div key={msg.id} className="item">
-                    {editingMessageId === msg.id ? (
+                {recentPlans.map((plan) => (
+                  <div key={plan.id} className="item">
+                    {editingPlanId === plan.id ? (
                       <>
-                        <textarea
-                          value={editMessageText}
-                          onChange={(e) => setEditMessageText(e.target.value)}
-                        />
+                        <select value={editingPlanType} onChange={(e) => setEditingPlanType(e.target.value)}>
+                          <option value="training">Training</option>
+                          <option value="nutrition">Ernährung</option>
+                          <option value="other">Sonstiges</option>
+                        </select>
+
+                        <label>Bemerkung</label>
+                        <textarea value={editingPlanNote} onChange={(e) => setEditingPlanNote(e.target.value)} />
+
                         <div className="button-row">
-                          <button className="btn btn-primary" onClick={saveMessageEdit}>
+                          <button className="btn btn-primary" onClick={savePlanEdit}>
                             Speichern
                           </button>
                           <button
                             className="btn btn-secondary"
                             onClick={() => {
-                              setEditingMessageId(null);
-                              setEditMessageText("");
+                              setEditingPlanId(null);
+                              setEditingPlanType("");
+                              setEditingPlanNote("");
                             }}
                           >
                             Abbrechen
@@ -1300,19 +1131,34 @@ if (editComment) payload.additional_comment = editComment;
                       </>
                     ) : (
                       <>
-                        <strong>{msg.sender_role === "coach" ? "Coach" : "Athlet"}</strong>
-                        <div>{msg.content}</div>
+                        <strong>{plan.file_name || plan.title || "Plan"}</strong>
+                        <div className="muted">Typ: {plan.type || "-"}</div>
                         <div className="muted">
-                          {msg.local_created_at ||
-                            (msg.created_at
-                              ? new Date(msg.created_at).toLocaleString("de-DE")
+                          Hochgeladen:{" "}
+                          {plan.local_created_at ||
+                            (plan.created_at
+                              ? new Date(plan.created_at).toLocaleString("de-DE")
                               : "-")}
                         </div>
+                        <div className="muted">
+                          Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
+                        </div>
+
+                        {plan.file_url ? (
+                          <a href={plan.file_url} target="_blank" rel="noreferrer">
+                            Datei öffnen
+                          </a>
+                        ) : (
+                          <div>{plan.content || "Kein Inhalt"}</div>
+                        )}
+
+                        {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
+
                         <div className="button-row" style={{ marginTop: 10 }}>
-                          <button className="btn btn-secondary" onClick={() => startEditMessage(msg)}>
+                          <button className="btn btn-secondary" onClick={() => startEditPlan(plan)}>
                             Bearbeiten
                           </button>
-                          <button className="btn btn-secondary" onClick={() => deleteMessage(msg.id)}>
+                          <button className="btn btn-secondary" onClick={() => deletePlan(plan.id)}>
                             Löschen
                           </button>
                         </div>
@@ -1321,225 +1167,379 @@ if (editComment) payload.additional_comment = editComment;
                   </div>
                 ))}
               </div>
-            )}
 
-            <h3>Neue Nachricht</h3>
+              {olderPlans.length > 0 ? (
+                <details style={{ marginTop: 12 }}>
+                  <summary>Ältere Pläne anzeigen ({olderPlans.length})</summary>
+                  <div className="stack" style={{ marginTop: 12 }}>
+                    {olderPlans.map((plan) => (
+                      <div key={plan.id} className="item">
+                        <strong>{plan.file_name || plan.title || "Plan"}</strong>
+                        <div className="muted">Typ: {plan.type || "-"}</div>
+                        <div className="muted">
+                          Hochgeladen:{" "}
+                          {plan.local_created_at ||
+                            (plan.created_at
+                              ? new Date(plan.created_at).toLocaleString("de-DE")
+                              : "-")}
+                        </div>
+                        <div className="muted">
+                          Gültig ab: {plan.valid_from ? formatDateDE(plan.valid_from) : "-"}
+                        </div>
+
+                        {plan.file_url ? (
+                          <a href={plan.file_url} target="_blank" rel="noreferrer">
+                            Datei öffnen
+                          </a>
+                        ) : (
+                          <div>{plan.content || "Kein Inhalt"}</div>
+                        )}
+
+                        {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
+
+                        <div className="button-row" style={{ marginTop: 10 }}>
+                          <button className="btn btn-secondary" onClick={() => startEditPlan(plan)}>
+                            Bearbeiten
+                          </button>
+                          <button className="btn btn-secondary" onClick={() => deletePlan(plan.id)}>
+                            Löschen
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ) : null}
+            </>
+          )}
+
+          <h3>Neuen Plan hochladen</h3>
+          <label>Plan-Typ</label>
+          <select value={planType} onChange={(e) => setPlanType(e.target.value)}>
+            <option value="training">Training</option>
+            <option value="nutrition">Ernährung</option>
+            <option value="other">Sonstiges</option>
+          </select>
+
+          <label>Bemerkung</label>
+          <textarea
+            value={planNote}
+            onChange={(e) => setPlanNote(e.target.value)}
+            placeholder="Bemerkung zur Datei..."
+          />
+
+          <label>Gültig ab</label>
+          <input
+            type="date"
+            value={planStartDate}
+            onChange={(e) => setPlanStartDate(e.target.value)}
+          />
+
+          <label>Datei</label>
+          <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+
+          <div className="button-row">
+            <button className="btn btn-primary" onClick={uploadAndSavePlan} disabled={uploading}>
+              {uploading ? "Lade hoch..." : "Datei hochladen"}
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "messages",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "messages")?.width || "full")}`} style={{ ...sectionStyle("#60a5fa"), minWidth: 0 }}>
+          <h2>Nachrichten</h2>
+
+          <div className="item" style={{ marginBottom: 16 }}>
+            <strong>Nachricht an alle Athleten</strong>
             <textarea
-              placeholder="Nachricht schreiben..."
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Nachricht an alle schreiben..."
+              value={broadcastText}
+              onChange={(e) => setBroadcastText(e.target.value)}
+              style={{ marginTop: 10 }}
             />
-            <div className="button-row">
-              <button className="btn btn-primary" onClick={sendMessage}>
-                Nachricht senden
+            <div className="button-row" style={{ marginTop: 10 }}>
+              <button
+                className="btn btn-primary"
+                onClick={sendBroadcast}
+                disabled={sendingBroadcast}
+              >
+                {sendingBroadcast ? "Sende..." : "An alle senden"}
               </button>
             </div>
           </div>
-        ),
-      },
-      {
-        id: "weightChart",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "weightChart")?.width || "half")}`} style={{ ...sectionStyle("#a78bfa"), minWidth: 0 }}>
-            <h2>Gewichtsverlauf</h2>
-            {weightChartData.length === 0 ? (
-              <p className="muted">Noch keine Gewichts-Daten vorhanden.</p>
-            ) : (
-              <div style={{ width: "100%", minWidth: 0, height: 280, minHeight: 280 }}>
-                <ResponsiveContainer width="99%" height={280}>
-                  <LineChart data={weightChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="weight" stroke="#8b5cf6" strokeWidth={2} dot />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+
+          {messages.length === 0 ? (
+            <p className="muted">Keine Nachrichten vorhanden.</p>
+          ) : (
+            <div className="stack">
+              {messages.map((msg) => (
+                <div key={msg.id} className="item">
+                  {editingMessageId === msg.id ? (
+                    <>
+                      <textarea
+                        value={editMessageText}
+                        onChange={(e) => setEditMessageText(e.target.value)}
+                      />
+                      <div className="button-row">
+                        <button className="btn btn-primary" onClick={saveMessageEdit}>
+                          Speichern
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            setEditingMessageId(null);
+                            setEditMessageText("");
+                          }}
+                        >
+                          Abbrechen
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <strong>{msg.sender_role === "coach" ? "Coach" : "Athlet"}</strong>
+                      <div>{msg.content}</div>
+                      <div className="muted">
+                        {msg.local_created_at ||
+                          (msg.created_at
+                            ? new Date(msg.created_at).toLocaleString("de-DE")
+                            : "-")}
+                      </div>
+                      <div className="button-row" style={{ marginTop: 10 }}>
+                        <button className="btn btn-secondary" onClick={() => startEditMessage(msg)}>
+                          Bearbeiten
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => deleteMessage(msg.id)}>
+                          Löschen
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <h3>Neue Nachricht</h3>
+          <textarea
+            placeholder="Nachricht schreiben..."
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+          />
+          <div className="button-row">
+            <button className="btn btn-primary" onClick={sendMessage}>
+              Nachricht senden
+            </button>
           </div>
-        ),
-      },
-      {
-        id: "compareCheckins",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "compareCheckins")?.width || "half")}`} style={{ ...sectionStyle("#a78bfa"), minWidth: 0 }}>
-            <h2>Check-ins vergleichen</h2>
+        </div>
+      ),
+    },
+    {
+      id: "weightChart",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "weightChart")?.width || "half")}`} style={{ ...sectionStyle("#a78bfa"), minWidth: 0 }}>
+          <h2>Gewichtsverlauf</h2>
+          {weightChartData.length === 0 ? (
+            <p className="muted">Noch keine Gewichts-Daten vorhanden.</p>
+          ) : (
+            <div style={{ width: "100%", minWidth: 0, height: 280, minHeight: 280 }}>
+              <ResponsiveContainer width="99%" height={280}>
+                <LineChart data={weightChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="weight" stroke="#8b5cf6" strokeWidth={2} dot />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "compareCheckins",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "compareCheckins")?.width || "half")}`} style={{ ...sectionStyle("#a78bfa"), minWidth: 0 }}>
+          <h2>Check-ins vergleichen</h2>
 
-            <label>Check-in A</label>
-            <select value={compareA} onChange={(e) => setCompareA(e.target.value)}>
-              <option value="">Bitte wählen</option>
-              {checkins.map((checkin) => (
-                <option key={checkin.id} value={checkin.id}>
-                  {checkin.local_datetime
-                    ? formatDateDE(checkin.local_datetime)
-                    : checkin.created_at
-                      ? formatDateDE(checkin.created_at)
-                      : checkin.date
-                        ? formatDateDE(checkin.date)
+          <label>Check-in A</label>
+          <select value={compareA} onChange={(e) => setCompareA(e.target.value)}>
+            <option value="">Bitte wählen</option>
+            {checkins.map((checkin) => (
+              <option key={checkin.id} value={checkin.id}>
+                {checkin.local_datetime
+                  ? formatDateDE(checkin.local_datetime)
+                  : checkin.created_at
+                    ? formatDateDE(checkin.created_at)
+                    : checkin.date
+                      ? formatDateDE(checkin.date)
+                      : "-"}
+              </option>
+            ))}
+          </select>
+
+          <label>Check-in B</label>
+          <select value={compareB} onChange={(e) => setCompareB(e.target.value)}>
+            <option value="">Bitte wählen</option>
+            {checkins.map((checkin) => (
+              <option key={checkin.id} value={checkin.id}>
+                {checkin.local_datetime
+                  ? formatDateDE(checkin.local_datetime)
+                  : checkin.created_at
+                    ? formatDateDE(checkin.created_at)
+                    : checkin.date
+                      ? formatDateDE(checkin.date)
+                      : "-"}
+              </option>
+            ))}
+          </select>
+
+          {compareCheckinA && compareCheckinB ? (
+            <div className="grid two" style={{ marginTop: 12 }}>
+              <div className="item">
+                <strong>A</strong>
+                <div className="muted">
+                  {compareCheckinA.local_datetime
+                    ? formatDateDE(compareCheckinA.local_datetime)
+                    : compareCheckinA.created_at
+                      ? formatDateDE(compareCheckinA.created_at)
+                      : compareCheckinA.date
+                        ? formatDateDE(compareCheckinA.date)
                         : "-"}
-                </option>
-              ))}
-            </select>
+                </div>
+                <div className="muted">Gewicht: {compareCheckinA.weight_kg ?? "-"} kg</div>
+                {renderPhotoGallery(comparePhotosA)}
+              </div>
 
-            <label>Check-in B</label>
-            <select value={compareB} onChange={(e) => setCompareB(e.target.value)}>
-              <option value="">Bitte wählen</option>
-              {checkins.map((checkin) => (
-                <option key={checkin.id} value={checkin.id}>
-                  {checkin.local_datetime
-                    ? formatDateDE(checkin.local_datetime)
-                    : checkin.created_at
-                      ? formatDateDE(checkin.created_at)
-                      : checkin.date
-                        ? formatDateDE(checkin.date)
+              <div className="item">
+                <strong>B</strong>
+                <div className="muted">
+                  {compareCheckinB.local_datetime
+                    ? formatDateDE(compareCheckinB.local_datetime)
+                    : compareCheckinB.created_at
+                      ? formatDateDE(compareCheckinB.created_at)
+                      : compareCheckinB.date
+                        ? formatDateDE(compareCheckinB.date)
                         : "-"}
-                </option>
-              ))}
-            </select>
-
-            {compareCheckinA && compareCheckinB ? (
-              <div className="grid two" style={{ marginTop: 12 }}>
-                <div className="item">
-                  <strong>A</strong>
-                  <div className="muted">
-                    {compareCheckinA.local_datetime
-                      ? formatDateDE(compareCheckinA.local_datetime)
-                      : compareCheckinA.created_at
-                        ? formatDateDE(compareCheckinA.created_at)
-                        : compareCheckinA.date
-                          ? formatDateDE(compareCheckinA.date)
-                          : "-"}
-                  </div>
-                  <div className="muted">Gewicht: {compareCheckinA.weight_kg ?? "-"} kg</div>
-                  {renderPhotoGallery(comparePhotosA)}
                 </div>
+                <div className="muted">Gewicht: {compareCheckinB.weight_kg ?? "-"} kg</div>
+                {renderPhotoGallery(comparePhotosB)}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      id: "athleteSettings",
+      content: (
+        <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "athleteSettings")?.width || "full")}`} style={{ ...sectionStyle("#ec4899"), minWidth: 0 }}>
+          <h2>Check-in-Einstellungen & Athlet bearbeiten</h2>
 
-                <div className="item">
-                  <strong>B</strong>
-                  <div className="muted">
-                    {compareCheckinB.local_datetime
-                      ? formatDateDE(compareCheckinB.local_datetime)
-                      : compareCheckinB.created_at
-                        ? formatDateDE(compareCheckinB.created_at)
-                        : compareCheckinB.date
-                          ? formatDateDE(compareCheckinB.date)
-                          : "-"}
-                  </div>
-                  <div className="muted">Gewicht: {compareCheckinB.weight_kg ?? "-"} kg</div>
-                  {renderPhotoGallery(comparePhotosB)}
-                </div>
+          <div className="grid two">
+            <div>
+              <label>Name</label>
+              <input value={athleteName} onChange={(e) => setAthleteName(e.target.value)} />
+            </div>
+
+            <div>
+              <label>Ziel</label>
+              <select value={athleteGoal} onChange={(e) => setAthleteGoal(e.target.value)}>
+                {GOALS.map((goal) => (
+                  <option key={goal} value={goal}>
+                    {goal}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Größe (cm)</label>
+              <input value={athleteHeight} onChange={(e) => setAthleteHeight(e.target.value)} />
+            </div>
+
+            <div>
+              <label>Startgewicht (kg)</label>
+              <input value={athleteStartWeight} onChange={(e) => setAthleteStartWeight(e.target.value)} />
+            </div>
+
+            <div>
+              <label>Phase</label>
+              <select value={athletePhase} onChange={(e) => setAthletePhase(e.target.value)}>
+                {PHASES.map((phase) => (
+                  <option key={phase} value={phase}>
+                    {phase}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Nächster Check-in Wochentag</label>
+              <select
+                value={athleteCheckinWeekday}
+                onChange={(e) => setAthleteCheckinWeekday(e.target.value)}
+              >
+                {WEEKDAYS.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Check-in alle X Tage</label>
+              <select
+                value={athleteCheckinIntervalDays}
+                onChange={(e) => setAthleteCheckinIntervalDays(e.target.value)}
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="7">7</option>
+                <option value="10">10</option>
+                <option value="14">14</option>
+              </select>
+            </div>
+
+            {me?.role === "admin" ? (
+              <div>
+                <label>Zugeordneter Coach</label>
+                <select value={athleteCoachId} onChange={(e) => setAthleteCoachId(e.target.value)}>
+                  <option value="">Kein Coach</option>
+                  {coaches.map((coach) => (
+                    <option key={coach.id} value={coach.id}>
+                      {coach.full_name} ({coach.role}) - Code: {coach.invite_code || "-"}
+                    </option>
+                  ))}
+                </select>
               </div>
             ) : null}
           </div>
-        ),
-      },
-      {
-        id: "athleteSettings",
-        content: (
-          <div className={`card ${getLayoutItemWidthClass(layout.find((x) => x.id === "athleteSettings")?.width || "full")}`} style={{ ...sectionStyle("#ec4899"), minWidth: 0 }}>
-            <h2>Check-in-Einstellungen & Athlet bearbeiten</h2>
 
-            <div className="grid two">
-              <div>
-                <label>Name</label>
-                <input value={athleteName} onChange={(e) => setAthleteName(e.target.value)} />
-              </div>
-
-              <div>
-                <label>Ziel</label>
-                <select value={athleteGoal} onChange={(e) => setAthleteGoal(e.target.value)}>
-                  {GOALS.map((goal) => (
-                    <option key={goal} value={goal}>
-                      {goal}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Größe (cm)</label>
-                <input value={athleteHeight} onChange={(e) => setAthleteHeight(e.target.value)} />
-              </div>
-
-              <div>
-                <label>Startgewicht (kg)</label>
-                <input value={athleteStartWeight} onChange={(e) => setAthleteStartWeight(e.target.value)} />
-              </div>
-
-              <div>
-                <label>Phase</label>
-                <select value={athletePhase} onChange={(e) => setAthletePhase(e.target.value)}>
-                  {PHASES.map((phase) => (
-                    <option key={phase} value={phase}>
-                      {phase}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Nächster Check-in Wochentag</label>
-                <select
-                  value={athleteCheckinWeekday}
-                  onChange={(e) => setAthleteCheckinWeekday(e.target.value)}
-                >
-                  {WEEKDAYS.map((d) => (
-                    <option key={d.value} value={d.value}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Check-in alle X Tage</label>
-                <select
-                  value={athleteCheckinIntervalDays}
-                  onChange={(e) => setAthleteCheckinIntervalDays(e.target.value)}
-                >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="5">5</option>
-                  <option value="7">7</option>
-                  <option value="10">10</option>
-                  <option value="14">14</option>
-                </select>
-              </div>
-
-              {me?.role === "admin" ? (
-                <div>
-                  <label>Zugeordneter Coach</label>
-                  <select value={athleteCoachId} onChange={(e) => setAthleteCoachId(e.target.value)}>
-                    <option value="">Kein Coach</option>
-                    {coaches.map((coach) => (
-                      <option key={coach.id} value={coach.id}>
-                        {coach.full_name} ({coach.role}) - Code: {coach.invite_code || "-"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="button-row">
-              <button className="btn btn-primary" onClick={saveAthleteProfile}>
-                Athlet speichern
-              </button>
-              <button className="btn btn-secondary" onClick={deleteAthlete}>
-                Athlet löschen
-              </button>
-            </div>
+          <div className="button-row">
+            <button className="btn btn-primary" onClick={saveAthleteProfile}>
+              Athlet speichern
+            </button>
+            <button className="btn btn-secondary" onClick={deleteAthlete}>
+              Athlet löschen
+            </button>
           </div>
-        ),
-      },
-    ],
-    layout
-  );
+        </div>
+      ),
+    },
+  ],
+  layout
+);
 
-  return (
- <AppShell role={me?.role === "admin" ? "admin" : "coach"}>
+return (
+  <AppShell role={me?.role === "admin" ? "admin" : "coach"}>
     <main className="page">
       <Header
         title={selected?.full_name || "Athlet"}
@@ -1556,72 +1556,70 @@ if (editComment) payload.additional_comment = editComment;
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
 
-  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
-    <div className="mobile-stat-label">Athleten</div>
-    <div className="mobile-stat-value">{athletes.length}</div>
-  </div>
+      <div className="mobile-stat-strip">
+        <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
+          <div className="mobile-stat-label">Athleten</div>
+          <div className="mobile-stat-value">{athletes.length}</div>
+        </div>
 
-  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
-    <div className="mobile-stat-label">Check-ins</div>
-    <div className="mobile-stat-value">
-  {checkins.filter(c => !c.is_seen).length}
-</div>
+        <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
+          <div className="mobile-stat-label">Check-ins</div>
+          <div className="mobile-stat-value">{checkins.length}</div>
+        </div>
 
-  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
-  <div className="mobile-stat-label">Nachrichten</div>
-  <div className="mobile-stat-value">
-    {messages.filter(m => m.sender_role === "athlete" && !m.is_seen).length}
-  </div>
-</div>
+        <div className="mobile-stat-box" style={{ borderLeft: "4px solid #f59e0b" }}>
+          <div className="mobile-stat-label">Nachrichten</div>
+          <div className="mobile-stat-value">{messages.filter(m => m.sender_role === "athlete" && !m.is_seen).length}</div>
+        </div>
 
-  <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
-    <div className="mobile-stat-label">Pläne</div>
-    <div className="mobile-stat-value">{plans.length}</div>
-  </div>
-</div>
+        <div className="mobile-stat-box" style={{ borderLeft: "4px solid #ec4899" }}>
+          <div className="mobile-stat-label">Pläne</div>
+          <div className="mobile-stat-value">{plans.length}</div>
+        </div>
+      </div>
 
-<div className="mobile-home-grid">
-  <Link href="/coach/messages" className="mobile-home-card">
-    <div className="mobile-home-card-title">Nachrichten</div>
-    <div className="mobile-home-card-text">
-      Athleten-Nachrichten lesen und beantworten.
-    </div>
-  </Link>
+      <div className="mobile-home-grid">
+        <Link href="/coach/messages" className="mobile-home-card">
+          <div className="mobile-home-card-title">Nachrichten</div>
+          <div className="mobile-home-card-text">
+            Athleten-Nachrichten lesen und beantworten.
+          </div>
+        </Link>
 
-  <Link href="/coach/checkins" className="mobile-home-card">
-    <div className="mobile-home-card-title">Check-ins</div>
-    <div className="mobile-home-card-text">
-      Neue Check-ins prüfen und Fortschritte vergleichen.
-    </div>
-  </Link>
+        <Link href="/coach/checkins" className="mobile-home-card">
+          <div className="mobile-home-card-title">Check-ins</div>
+          <div className="mobile-home-card-text">
+            Neue Check-ins prüfen und Fortschritte vergleichen.
+          </div>
+        </Link>
 
-  <Link href="/coach" className="mobile-home-card">
-    <div className="mobile-home-card-title">Athleten</div>
-    <div className="mobile-home-card-text">
-      Athleten öffnen, bearbeiten und verwalten.
-    </div>
-  </Link>
+        <Link href="/coach" className="mobile-home-card">
+          <div className="mobile-home-card-title">Athleten</div>
+          <div className="mobile-home-card-text">
+            Athleten öffnen, bearbeiten und verwalten.
+          </div>
+        </Link>
 
-  <Link href="/coach/more" className="mobile-home-card">
-    <div className="mobile-home-card-title">Mehr</div>
-    <div className="mobile-home-card-text">
-      Einstellungen und weitere Optionen.
-    </div>
-  </Link>
-</div>
+        <Link href="/coach/more" className="mobile-home-card">
+          <div className="mobile-home-card-title">Mehr</div>
+          <div className="mobile-home-card-text">
+            Einstellungen und weitere Optionen.
+          </div>
+        </Link>
+      </div>
 
-            <div className="desktop-only">
-  <LayoutEditor
-    isAdmin={me?.role === "admin"}
-    editing={editingLayout}
-    setEditing={setEditingLayout}
-    layout={layout}
-    setLayout={setLayout}
-    onSave={saveLayout}
-    labels={layoutLabels}
-    saving={savingLayout}
-  />
-</div>
+      <div className="desktop-only">
+        <LayoutEditor
+          isAdmin={me?.role === "admin"}
+          editing={editingLayout}
+          setEditing={setEditingLayout}
+          layout={layout}
+          setLayout={setLayout}
+          onSave={saveLayout}
+          labels={layoutLabels}
+          saving={savingLayout}
+        />
+      </div>
 
       <div className="desktop-only">
         {!selected ? (
@@ -1646,12 +1644,11 @@ if (editComment) payload.additional_comment = editComment;
           </section>
         )}
       </div>
-
     </main>
   </AppShell>
-  );
-}
-export default function CoachPage() {
+);
+
+  export default function CoachPage() {
   return (
     <Suspense
       fallback={
