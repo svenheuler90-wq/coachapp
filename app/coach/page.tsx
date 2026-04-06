@@ -182,8 +182,6 @@ useEffect(() => {
     }
   };
 
-  updateAthleteFromUrl();
-
   window.addEventListener("popstate", updateAthleteFromUrl);
 
   return () => {
@@ -831,7 +829,7 @@ payload.hunger = editHunger === "true";
 if (editHungerScale) payload.hunger_scale = Number(editHungerScale);
 
 if (editComment) payload.additional_comment = editComment;
-    };
+    
 
     const { error } = await supabase.from("checkins").update(payload).eq("id", editingCheckinId);
 
