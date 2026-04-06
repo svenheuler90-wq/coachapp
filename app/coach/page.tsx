@@ -173,8 +173,22 @@ useEffect(() => {
 
   updateAthleteFromUrl();
 
+  useEffect(() => {
+  const updateAthleteFromUrl = () => {
+    const search = new URLSearchParams(window.location.search);
+    const athleteId = search.get("athlete");
+    if (athleteId) {
+      setAthleteIdFromUrl(athleteId);
+    }
+  };
+
+  updateAthleteFromUrl();
+
   window.addEventListener("popstate", updateAthleteFromUrl);
-  return () => window.removeEventListener("popstate", updateAthleteFromUrl);
+
+  return () => {
+    window.removeEventListener("popstate", updateAthleteFromUrl);
+  };
 }, []);
 
   const [athletes, setAthletes] = useState<any[]>([]);
