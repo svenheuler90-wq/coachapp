@@ -557,32 +557,33 @@ await fetch("/api/push/send", {
             ) : (
               <>
                 <div className="stack">
-                  {recentPlans.map((plan) => (
-                    <div key={plan.id} className="item">
-                      <strong>{plan.file_name || plan.title || "Plan"}</strong>
-                      <div className="muted">Typ: {plan.type || "-"}</div>
-                      <div className="muted">
-                        Hochgeladen:{" "}
-                        {plan.local_created_at ||
-                          (plan.created_at
-                            ? new Date(plan.created_at).toLocaleString("de-DE")
-                            : "-")}
-                      </div>
-		      <div className="muted">
-			Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocalDateString("de-DE") : "-"}
+		{recentPlans.map((plan) => (
+  <div key={plan.id} className="item">
+    <strong>{plan.file_name || plan.title || "Plan"}</strong>
+    <div className="muted">Typ: {plan.type || "-"}</div>
+    <div className="muted">
+      Hochgeladen:{" "}
+      {plan.local_created_at ||
+        (plan.created_at
+          ? new Date(plan.created_at).toLocaleString("de-DE")
+          : "-")}
+    </div>
+    <div className="muted">
+      Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocaleDateString("de-DE") : "-"}
+    </div>
 
-                      {plan.file_url ? (
-                        <a href={plan.file_url} target="_blank" rel="noreferrer">
-                          Datei öffnen
-                        </a>
-                      ) : (
-                        <div>{plan.content || "Kein Inhalt"}</div>
-                      )}
+    {plan.file_url ? (
+      <a href={plan.file_url} target="_blank" rel="noreferrer">
+        Datei öffnen
+      </a>
+    ) : (
+      <div>{plan.content || "Kein Inhalt"}</div>
+    )}
 
-                      {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
-                    </div>
-                  ))}
-                </div>
+    {plan.note ? <div className="muted">Bemerkung: {plan.note}</div> : null}
+  </div>
+))}
+                                  </div>
 
                 {olderPlans.length > 0 ? (
                   <details style={{ marginTop: 12 }}>
