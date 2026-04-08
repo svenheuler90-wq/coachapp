@@ -151,15 +151,15 @@ export default function AthletePage() {
   const [bloodPressureDia, setBloodPressureDia] = useState("");
   const [pulse, setPulse] = useState("");
   const [sugar, setSugar] = useState("");
-  const [hunger, setHunger] = useState("false");
-  const [hungerScale, setHungerScale] = useState("1");
-  const [motivation, setMotivation] = useState("mittel");
-  const [wellBeing, setWellBeing] = useState("mittel");
-  const [sleepQuality, setSleepQuality] = useState("mittel");
-  const [stoolQuality, setStoolQuality] = useState("normal");
-  const [stoolTimes, setStoolTimes] = useState("1");
-  const [stoolEveryDays, setStoolEveryDays] = useState("1");
-  const [digestion, setDigestion] = useState("Normal");
+  const [hunger, setHunger] = useState("");
+  const [hungerScale, setHungerScale] = useState("");
+  const [motivation, setMotivation] = useState("");
+  const [wellBeing, setWellBeing] = useState("");
+  const [sleepQuality, setSleepQuality] = useState("");
+  const [stoolQuality, setStoolQuality] = useState("");
+  const [stoolTimes, setStoolTimes] = useState("");
+  const [stoolEveryDays, setStoolEveryDays] = useState("");
+  const [digestion, setDigestion] = useState("");
   const [comment, setComment] = useState("");
   const [checkinFiles, setCheckinFiles] = useState<FileList | null>(null);
 
@@ -296,38 +296,51 @@ export default function AthletePage() {
       }
 
       if (
-        hunger === "true" &&
-        (!hungerScale || Number(hungerScale) < 1 || Number(hungerScale) > 10)
-      ) {
-        setInfo("Fehler: Hunger-Skala muss zwischen 1 und 10 liegen.");
-        return;
-      }
+  hunger === "true" &&
+  (!hungerScale || Number(hungerScale) < 1 || Number(hungerScale) > 10)
+) {
+  setInfo("Fehler: Hunger-Skala muss zwischen 1 und 10 liegen.");
+  return;
+}
 
-      const checkinPayload = {
-        athlete_id: profile.id,
-        date: checkinDateTime ? checkinDateTime.slice(0, 10) : null,
-        created_at: new Date().toISOString(),
-        local_datetime: checkinDateTime,
-        weight_kg: parsedWeight,
-        blood_pressure_sys: bloodPressureSys ? Number(bloodPressureSys) : null,
-        blood_pressure_dia: bloodPressureDia ? Number(bloodPressureDia) : null,
-        blood_pressure:
-          bloodPressureSys && bloodPressureDia
-            ? `${bloodPressureSys}/${bloodPressureDia}`
-            : null,
-        pulse_bpm: pulse ? Number(pulse) : null,
-        blood_sugar: sugar ? Number(sugar) : null,
-        hunger: hunger === "true",
-        hunger_scale: Number(hungerScale),
-        motivation,
-        well_being: wellBeing,
-        sleep_quality: sleepQuality,
-        stool_quality: stoolQuality,
-        stool_times: Number(stoolTimes),
-        stool_every_days: Number(stoolEveryDays),
-        digestion,
-        additional_comment: comment || null,
-      };
+if (
+  hungerScale &&
+  (Number(hungerScale) < 1 || Number(hungerScale) > 10)
+) {
+  setInfo("Fehler: Hunger-Skala muss zwischen 1 und 10 liegen.");
+  return;
+}
+      const checkinPayload: any = {
+  athlete_id: profile.id,
+  date: checkinDateTime ? checkinDateTime.slice(0, 10) : null,
+  created_at: new Date().toISOString(),
+  local_datetime: checkinDateTime || null,
+  weight_kg: parsedWeight,
+};
+
+if (bloodPressureSys) checkinPayload.blood_pressure_sys = Number(bloodPressureSys);
+if (bloodPressureDia) checkinPayload.blood_pressure_dia = Number(bloodPressureDia);
+
+if (bloodPressureSys && bloodPressureDia) {
+  checkinPayload.blood_pressure = `${bloodPressureSys}/${bloodPressureDia}`;
+}
+
+if (pulse) checkinPayload.pulse_bpm = Number(pulse);
+if (sugar) checkinPayload.blood_sugar = Number(sugar);
+
+if (hunger === "true" || hunger === "false") {
+  checkinPayload.hunger = hunger === "true";
+}
+
+if (hungerScale) checkinPayload.hunger_scale = Number(hungerScale);
+if (motivation) checkinPayload.motivation = motivation;
+if (wellBeing) checkinPayload.well_being = wellBeing;
+if (sleepQuality) checkinPayload.sleep_quality = sleepQuality;
+if (stoolQuality) checkinPayload.stool_quality = stoolQuality;
+if (stoolTimes) checkinPayload.stool_times = Number(stoolTimes);
+if (stoolEveryDays) checkinPayload.stool_every_days = Number(stoolEveryDays);
+if (digestion) checkinPayload.digestion = digestion;
+if (comment) checkinPayload.additional_comment = comment;
 
       const { data: insertedCheckin, error: checkinError } = await supabase
         .from("checkins")
@@ -406,11 +419,11 @@ await fetch("/api/push/send", {
       setBloodPressureDia("");
       setPulse("");
       setSugar("");
-      setHunger("false");
-      setHungerScale("1");
-      setStoolTimes("1");
-      setStoolEveryDays("1");
-      setDigestion("Normal");
+      setHunger("");
+      setHungerScale("");
+      setStoolTimes("");
+      setStoolEveryDays("");
+      setDigestion("");
       setComment("");
       setCheckinFiles(null);
 
@@ -555,6 +568,8 @@ await fetch("/api/push/send", {
                             ? new Date(plan.created_at).toLocaleString("de-DE")
                             : "-")}
                       </div>
+		      <div className="muted">
+			Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocalDateString("de-DE") : "-"}
 
                       {plan.file_url ? (
                         <a href={plan.file_url} target="_blank" rel="noreferrer">
@@ -579,6 +594,7 @@ await fetch("/api/push/send", {
                           <div className="muted">Typ: {plan.type || "-"}</div>
                           <div className="muted">
                             Hochgeladen:{" "}
+		            Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocalDateString("de-DE") : "-"}
                             {plan.local_created_at ||
                               (plan.created_at
                                 ? new Date(plan.created_at).toLocaleString("de-DE")
@@ -637,6 +653,7 @@ await fetch("/api/push/send", {
 
             <label>Hunger</label>
             <select value={hunger} onChange={(e) => setHunger(e.target.value)}>
+	      <option value="">Bitte wählen</option>
               <option value="false">Nein</option>
               <option value="true">Ja</option>
             </select>
@@ -647,6 +664,8 @@ await fetch("/api/push/send", {
               onChange={(e) => setHungerScale(e.target.value)}
               disabled={hunger !== "true"}
             >
+	     <option value="">Bitte wählen</option>		
+
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>
                   {n}
@@ -656,6 +675,7 @@ await fetch("/api/push/send", {
 
             <label>Motivation</label>
             <select value={motivation} onChange={(e) => setMotivation(e.target.value)}>
+              <option value="">Bitte wählen</option>
               <option value="sehr_niedrig">Sehr niedrig</option>
               <option value="niedrig">Niedrig</option>
               <option value="mittel">Mittel</option>
@@ -665,6 +685,7 @@ await fetch("/api/push/send", {
 
             <label>Wohlbefinden</label>
             <select value={wellBeing} onChange={(e) => setWellBeing(e.target.value)}>
+              <option value="">Bitte wählen</option>
               <option value="sehr_schlecht">Sehr schlecht</option>
               <option value="schlecht">Schlecht</option>
               <option value="mittel">Mittel</option>
@@ -674,6 +695,7 @@ await fetch("/api/push/send", {
 
             <label>Schlaf</label>
             <select value={sleepQuality} onChange={(e) => setSleepQuality(e.target.value)}>
+              <option value="">Bitte wählen</option>
               <option value="sehr_schlecht">Sehr schlecht</option>
               <option value="schlecht">Schlecht</option>
               <option value="mittel">Mittel</option>
@@ -683,6 +705,7 @@ await fetch("/api/push/send", {
 
             <label>Stuhlgang</label>
             <select value={stoolQuality} onChange={(e) => setStoolQuality(e.target.value)}>
+	      <option value="">Bitte wählen</option>
               <option value="verstopfung">Verstopfung</option>
               <option value="hart">Hart</option>
               <option value="normal">Normal</option>
@@ -698,6 +721,7 @@ await fetch("/api/push/send", {
 
             <label>Verdauung</label>
             <select value={digestion} onChange={(e) => setDigestion(e.target.value)}>
+	      <option value="">Bitte wählen</option>
               {DIGESTION_OPTIONS.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -875,22 +899,30 @@ await fetch("/api/push/send", {
                               : checkin.date || "-")}
                         </strong>
 
-                        <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                        <div className="muted">
-                          Blutdruck:{" "}
-                          {checkin.blood_pressure_sys && checkin.blood_pressure_dia
-                            ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
-                            : checkin.blood_pressure || "-"}
-                        </div>
-                        <div className="muted">Puls: {checkin.pulse_bpm ?? "-"} bpm</div>
-                        <div className="muted">Blutzucker: {checkin.blood_sugar ?? "-"} mg/dL</div>
-                        <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
-                        <div className="muted">Hunger-Skala: {checkin.hunger_scale ?? "-"}</div>
-                        <div className="muted">Stuhlgang: {checkin.stool_quality || "-"}</div>
-                        <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                        <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
-                        <div className="muted">Verdauung: {checkin.digestion || "-"}</div>
-                        <div className="muted">Kommentar: {checkin.additional_comment || "-"}</div>
+                        {checkin.weight_kg != null ? (
+  <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
+) : null}
+
+{checkin.blood_pressure_sys || checkin.blood_pressure_dia || checkin.blood_pressure ? (
+  <div className="muted">
+    Blutdruck:{" "}
+    {checkin.blood_pressure_sys && checkin.blood_pressure_dia
+      ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
+      : checkin.blood_pressure}
+  </div>
+) : null}
+
+{checkin.pulse_bpm != null ? <div className="muted">Puls: {checkin.pulse_bpm} bpm</div> : null}
+{checkin.blood_sugar != null ? <div className="muted">Blutzucker: {checkin.blood_sugar} mg/dL</div> : null}
+{typeof checkin.hunger === "boolean" ? (
+  <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
+) : null}
+{checkin.hunger_scale != null ? <div className="muted">Hunger-Skala: {checkin.hunger_scale}</div> : null}
+{checkin.stool_quality ? <div className="muted">Stuhlgang: {checkin.stool_quality}</div> : null}
+{checkin.stool_times != null ? <div className="muted">Wie oft: {checkin.stool_times}</div> : null}
+{checkin.stool_every_days != null ? <div className="muted">Alle wie viele Tage: {checkin.stool_every_days}</div> : null}
+{checkin.digestion ? <div className="muted">Verdauung: {checkin.digestion}</div> : null}
+{checkin.additional_comment ? <div className="muted">Kommentar: {checkin.additional_comment}</div> : null}
 
                         {renderPhotoGallery(linkedPhotos)}
                       </div>
@@ -914,9 +946,15 @@ await fetch("/api/push/send", {
                                   : checkin.date || "-")}
                             </strong>
 
-                            <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                            <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                            <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
+                            {checkin.weight_kg != null ? (
+  <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
+) : null}
+{checkin.stool_times != null ? (
+  <div className="muted">Wie oft: {checkin.stool_times}</div>
+) : null}
+{checkin.stool_every_days != null ? (
+  <div className="muted">Alle wie viele Tage: {checkin.stool_every_days}</div>
+) : null}
 
                             {renderPhotoGallery(linkedPhotos)}
                           </div>
@@ -938,24 +976,38 @@ await fetch("/api/push/send", {
   <AppShell role="athlete">
     <main className="page">
       <Header
-        title="Athleten Dashboard"
-        subtitle={
-          profile
-            ? `Noch ${daysUntilNextCheckin(
-                Number(profile.checkin_weekday ?? 0),
-                Number(profile.checkin_interval_days ?? 7)
-              )} Tage bis zum nächsten Check-in | Intervall: alle ${profile.checkin_interval_days ?? 7} Tage`
-            : "Nachrichten, Pläne, Check-ins und Fortschrittsbilder."
-        }
-        actions={
-          <button className="btn btn-secondary" onClick={logout}>
-            Logout
-          </button>
-        }
-      />
+  title="Dashboard"
+  subtitle={
+    profile
+      ? `${profile.full_name || "-"} | Noch ${daysUntilNextCheckin(
+          Number(profile.checkin_weekday ?? 0),
+          Number(profile.checkin_interval_days ?? 7)
+        )} Tage bis zum nächsten Check-in | Intervall: alle ${profile.checkin_interval_days ?? 7} Tage`
+      : "Dashboard"
+  }
+  actions={
+    <button className="btn btn-secondary" onClick={logout}>
+      Logout
+    </button>
+  }
+/>
 
       {info ? <div style={noticeStyle(info)}>{info}</div> : null}
-<PushEnableButton />
+{profile && checkins.length > 0 ? (
+  <div className="card" style={{ borderLeft: "4px solid #22c55e", marginBottom: 16 }}>
+    <strong>Letzter Check-in</strong>
+    <div className="muted" style={{ marginTop: 6 }}>
+      {checkins[0].local_datetime
+        ? new Date(checkins[0].local_datetime).toLocaleString("de-DE")
+        : checkins[0].created_at
+          ? new Date(checkins[0].created_at).toLocaleString("de-DE")
+          : checkins[0].date || "-"}
+    </div>
+    {checkins[0].weight_kg != null ? (
+      <div className="muted">Gewicht: {checkins[0].weight_kg} kg</div>
+    ) : null}
+  </div>
+) : null}
 
 <div className="mobile-stat-strip">
   <div className="mobile-stat-box" style={{ borderLeft: "4px solid #60a5fa" }}>
@@ -1022,6 +1074,7 @@ await fetch("/api/push/send", {
         </section>
       ) : null}
 
+    <div className="desktop-only">
       <LayoutEditor
         isAdmin={profile?.role === "admin"}
         editing={editingLayout}
@@ -1032,6 +1085,7 @@ await fetch("/api/push/send", {
         labels={layoutLabels}
         saving={savingLayout}
       />
+    </div>
 
       {profile ? (
         <div className="desktop-only">
