@@ -595,7 +595,7 @@ await fetch("/api/push/send", {
                           <div className="muted">Typ: {plan.type || "-"}</div>
                           <div className="muted">
                             Hochgeladen:{" "}
-		            Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocalDateString("de-DE") : "-"}
+		            Gültig ab: {plan.valid_from ? new Date(plan.valid_from).toLocaleDateString("de-DE") : "-"}
                             {plan.local_created_at ||
                               (plan.created_at
                                 ? new Date(plan.created_at).toLocaleString("de-DE")
