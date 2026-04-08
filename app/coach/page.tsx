@@ -159,6 +159,9 @@ function renderPhotoGallery(photosForCheckin: any[]) {
 function CoachPageContent() {
   const router = useRouter();
   const [athleteIdFromUrl, setAthleteIdFromUrl] = useState("");
+  const [athletes, setAthletes] = useState<any[]>([]);
+  const [coaches, setCoaches] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
 
 useEffect(() => {
   if (!athleteIdFromUrl || athletes.length === 0) return;
@@ -188,10 +191,6 @@ useEffect(() => {
     window.removeEventListener("popstate", updateAthleteFromUrl);
   };
 }, []);
-
-  const [athletes, setAthletes] = useState<any[]>([]);
-  const [coaches, setCoaches] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any>(null);
 
   const [checkins, setCheckins] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
