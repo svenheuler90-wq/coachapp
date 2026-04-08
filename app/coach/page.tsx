@@ -171,8 +171,6 @@ useEffect(() => {
   }
 }, [athleteIdFromUrl, athletes]);
 
-  updateAthleteFromUrl();
-
   useEffect(() => {
   const updateAthleteFromUrl = () => {
     const search = new URLSearchParams(window.location.search);
@@ -181,6 +179,8 @@ useEffect(() => {
       setAthleteIdFromUrl(athleteId);
     }
   };
+
+  updateAthleteFromUrl();
 
   window.addEventListener("popstate", updateAthleteFromUrl);
 
