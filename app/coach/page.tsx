@@ -1645,6 +1645,7 @@ return (
     </main>
   </AppShell>
 );
+}
 
   export default function CoachPage() {
   return (
