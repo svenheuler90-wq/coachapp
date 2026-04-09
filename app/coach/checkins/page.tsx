@@ -13,11 +13,64 @@ function formatDateTimeDE(value?: string | null) {
   return d.toLocaleString("de-DE");
 }
 
+function renderPhotoGallery(photosForCheckin: any[]) {
+  if (!photosForCheckin || photosForCheckin.length === 0) return null;
+
+  const visiblePhotos = photosForCheckin.slice(0, 2);
+  const hiddenPhotos = photosForCheckin.slice(2);
+
+  return (
+    <>
+      <div className="image-grid" style={{ marginTop: 10 }}>
+        {visiblePhotos.map((photo) => (
+          <a key={photo.id} href={photo.image_url} target="_blank" rel="noreferrer">
+            <img
+              src={encodeURI(photo.image_url)}
+              alt="Check-in Bild"
+              className="preview-image"
+              style={{
+                width: 110,
+                height: 110,
+                objectFit: "cover",
+                borderRadius: 10,
+              }}
+            />
+          </a>
+        ))}
+      </div>
+
+      {hiddenPhotos.length > 0 ? (
+        <details style={{ marginTop: 10 }}>
+          <summary>Weitere Bilder anzeigen ({hiddenPhotos.length})</summary>
+          <div className="image-grid" style={{ marginTop: 10 }}>
+            {hiddenPhotos.map((photo) => (
+              <a key={photo.id} href={photo.image_url} target="_blank" rel="noreferrer">
+                <img
+                  src={encodeURI(photo.image_url)}
+                  alt="Check-in Bild"
+                  className="preview-image"
+                  style={{
+                    width: 110,
+                    height: 110,
+                    objectFit: "cover",
+                    borderRadius: 10,
+                  }}
+                />
+              </a>
+            ))}
+          </div>
+        </details>
+      ) : null}
+    </>
+  );
+}
+
 export default function CoachCheckinsPage() {
   const router = useRouter();
 
   const [me, setMe] = useState<any>(null);
   const [checkins, setCheckins] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<any[]>([]);
   const [athletesMap, setAthletesMap] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
@@ -65,14 +118,22 @@ export default function CoachCheckinsPage() {
         return;
       }
 
-      const { data: checkinData } = await supabase
-        .from("checkins")
-        .select("*")
-        .in("athlete_id", athleteIds)
-        .order("created_at", { ascending: false });
+      const [{ data: checkinData }, { data: photosData }] = await Promise.all([
+  supabase
+    .from("checkins")
+    .select("*")
+    .in("athlete_id", athleteIds)
+    .order("created_at", { ascending: false }),
+  supabase
+    .from("progress_photos")
+    .select("*")
+    .in("athlete_id", athleteIds)
+    .order("created_at", { ascending: false }),
+]);
 
-      setCheckins(checkinData || []);
-      setLoading(false);
+setCheckins(checkinData || []);
+setPhotos(photosData || []);
+setLoading(false);
     };
 
     init();
@@ -95,6 +156,7 @@ export default function CoachCheckinsPage() {
           <section className="grid two">
             {checkins.map((checkin) => {
               const athlete = athletesMap[checkin.athlete_id];
+              const linkedPhotos = photos.filter((photo) => photo.checkin_id === checkin.id);
 
               return (
                 <div key={checkin.id} className="card">
@@ -103,6 +165,7 @@ export default function CoachCheckinsPage() {
                     {formatDateTimeDE(checkin.local_datetime || checkin.created_at || checkin.date)}
                   </div>
                   
+		{checkin.weight_kg != null ? (
 		{checkin.weight_kg != null ? (
   <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
 ) : null}
@@ -151,6 +214,7 @@ export default function CoachCheckinsPage() {
 {checkin.additional_comment ? (
   <div className="muted">Kommentar: {checkin.additional_comment}</div>
 ) : null}
+  
                   {athlete?.id ? (
                     <div className="button-row" style={{ marginTop: 12 }}>
                       <button
@@ -161,6 +225,7 @@ export default function CoachCheckinsPage() {
                       </button>
                     </div>
                   ) : null}
+                  {renderPhotoGallery(linkedPhotos)}
                 </div>
               );
             })}

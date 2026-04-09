@@ -1087,8 +1087,7 @@ await fetch("/api/push/send", {
         saving={savingLayout}
       />
     </div>
-
-      {profile ? (
+{profile ? (
   <>
     <div className="desktop-only">
       <section className="grid three">
@@ -1122,6 +1121,7 @@ await fetch("/api/push/send", {
     </section>
   </>
 ) : null}
+      
     </main>
   </AppShell>
   );

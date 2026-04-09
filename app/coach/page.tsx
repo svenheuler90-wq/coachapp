@@ -1575,36 +1575,6 @@ return (
         </div>
       </div>
 
-      <div className="mobile-home-grid">
-        <Link href="/coach/messages" className="mobile-home-card">
-          <div className="mobile-home-card-title">Nachrichten</div>
-          <div className="mobile-home-card-text">
-            Athleten-Nachrichten lesen und beantworten.
-          </div>
-        </Link>
-
-        <Link href="/coach/checkins" className="mobile-home-card">
-          <div className="mobile-home-card-title">Check-ins</div>
-          <div className="mobile-home-card-text">
-            Neue Check-ins prüfen und Fortschritte vergleichen.
-          </div>
-        </Link>
-
-        <Link href="/coach" className="mobile-home-card">
-          <div className="mobile-home-card-title">Athleten</div>
-          <div className="mobile-home-card-text">
-            Athleten öffnen, bearbeiten und verwalten.
-          </div>
-        </Link>
-
-        <Link href="/coach/more" className="mobile-home-card">
-          <div className="mobile-home-card-title">Mehr</div>
-          <div className="mobile-home-card-text">
-            Einstellungen und weitere Optionen.
-          </div>
-        </Link>
-      </div>
-
       <div className="desktop-only">
         <LayoutEditor
           isAdmin={me?.role === "admin"}
