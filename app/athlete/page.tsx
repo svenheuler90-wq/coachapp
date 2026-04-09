@@ -1089,37 +1089,39 @@ await fetch("/api/push/send", {
     </div>
 
       {profile ? (
-        <div className="desktop-only">
-          <section className="grid three">
-            <div className="card stat-card" style={{ borderLeft: "4px solid #60a5fa" }}>
-              <div className="stat-label">Name</div>
-              <div className="stat-value small">{profile.full_name || "-"}</div>
-            </div>
-            <div className="card stat-card" style={{ borderLeft: "4px solid #f59e0b" }}>
-              <div className="stat-label">Ziel</div>
-              <div className="stat-value small">{profile.goal || "-"}</div>
-            </div>
-            <div className="card stat-card" style={{ borderLeft: "4px solid #ec4899" }}>
-              <div className="stat-label">Phase</div>
-              <div className="stat-value small">{profile.current_phase || "-"}</div>
-            </div>
-          </section>
-
-          <section className="grid two">
-            {sections.map((section) => {
-              const item = layout.find((x) => x.id === section.id);
-              return (
-                <div
-                  key={section.id}
-                  className={getLayoutItemWidthClass(item?.width || "half")}
-                >
-                  {section.content}
-                </div>
-              );
-            })}
-          </section>
+  <>
+    <div className="desktop-only">
+      <section className="grid three">
+        <div className="card stat-card" style={{ borderLeft: "4px solid #60a5fa" }}>
+          <div className="stat-label">Name</div>
+          <div className="stat-value small">{profile.full_name || "-"}</div>
         </div>
-      ) : null}
+        <div className="card stat-card" style={{ borderLeft: "4px solid #f59e0b" }}>
+          <div className="stat-label">Ziel</div>
+          <div className="stat-value small">{profile.goal || "-"}</div>
+        </div>
+        <div className="card stat-card" style={{ borderLeft: "4px solid #ec4899" }}>
+          <div className="stat-label">Phase</div>
+          <div className="stat-value small">{profile.current_phase || "-"}</div>
+        </div>
+      </section>
+    </div>
+
+    <section className="grid two">
+      {sections.map((section) => {
+        const item = layout.find((x) => x.id === section.id);
+        return (
+          <div
+            key={section.id}
+            className={getLayoutItemWidthClass(item?.width || "half")}
+          >
+            {section.content}
+          </div>
+        );
+      })}
+    </section>
+  </>
+) : null}
     </main>
   </AppShell>
   );

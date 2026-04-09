@@ -1620,26 +1620,27 @@ return (
 
       <div className="desktop-only">
         {!selected ? (
-          <section className="card">
-            <p className="muted">
-              Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.
-            </p>
-          </section>
-        ) : (
-          <section className="grid two">
-            {sections.map((section) => {
-              const item = layout.find((x) => x.id === section.id);
-              return (
-                <div
-                  key={section.id}
-                  className={getLayoutItemWidthClass(item?.width || "half")}
-                >
-                  {section.content}
-                </div>
-              );
-            })}
-          </section>
-        )}
+  <section className="card">
+    <p className="muted">
+      Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.
+    </p>
+  </section>
+) : (
+  <section className="grid two">
+    {sections.map((section) => {
+      const item = layout.find((x) => x.id === section.id);
+      return (
+        <div
+          key={section.id}
+          className={getLayoutItemWidthClass(item?.width || "half")}
+        >
+          {section.content}
+        </div>
+      );
+    })}
+  </section>
+)}
+
       </div>
     </main>
   </AppShell>
