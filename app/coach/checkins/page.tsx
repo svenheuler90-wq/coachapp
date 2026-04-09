@@ -166,7 +166,6 @@ setLoading(false);
                   </div>
                   
 		{checkin.weight_kg != null ? (
-		{checkin.weight_kg != null ? (
   <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
 ) : null}
 
