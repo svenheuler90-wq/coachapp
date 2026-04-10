@@ -1594,21 +1594,20 @@ return (
         </div>
       </div>
 
-      <div className="desktop-only">
-        <LayoutEditor
-          isAdmin={me?.role === "admin"}
-          editing={editingLayout}
-          setEditing={setEditingLayout}
-          layout={layout}
-          setLayout={setLayout}
-          onSave={saveLayout}
-          labels={layoutLabels}
-          saving={savingLayout}
-        />
-      </div>
+<div className="desktop-only">
+  <LayoutEditor
+    isAdmin={me?.role === "admin"}
+    editing={editingLayout}
+    setEditing={setEditingLayout}
+    layout={layout}
+    setLayout={setLayout}
+    onSave={saveLayout}
+    labels={layoutLabels}
+    saving={savingLayout}
+  />
+</div>
 
-      <div className="desktop-only">
-        {!selected ? (
+{!selected ? (
   <section className="card">
     <p className="muted">
       Kein Athlet ausgewählt. Bitte erst im Dashboard einen Athleten öffnen.
@@ -1629,9 +1628,7 @@ return (
     })}
   </section>
 )}
-
-      </div>
-    </main>
+          </main>
   </AppShell>
 );
 }
