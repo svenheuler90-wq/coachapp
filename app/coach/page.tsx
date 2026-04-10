@@ -364,20 +364,14 @@ useEffect(() => {
       }
     }
 
-    if (athleteList.length > 0 && !selected) {
-      applySelectedAthlete(athleteList[0]);
-      await loadAthleteData(athleteList[0].id);
-    }
-
-setTimeout(() => {
-  if (athleteIdFromUrl) {
-    const found = athleteList.find((a) => a.id === athleteIdFromUrl);
-    if (found) {
-      applySelectedAthlete(found);
-      loadAthleteData(found.id);
-    }
+    if (athleteList.length > 0 && !selected && athleteIdFromUrl) {
+  const firstFromUrl = athleteList.find((a) => a.id === athleteIdFromUrl);
+  if (firstFromUrl) {
+    applySelectedAthlete(firstFromUrl);
+    await loadAthleteData(firstFromUrl.id);
   }
-}, 0);
+}
+
   };
 
   const applySelectedAthlete = (athlete: any) => {
@@ -1558,6 +1552,31 @@ return (
           <div className="mobile-stat-label">Athleten</div>
           <div className="mobile-stat-value">{athletes.length}</div>
         </div>
+
+	{athletes.length > 0 ? (
+  <div className="card" style={{ marginBottom: 16 }}>
+    <label>Athlet auswählen</label>
+    <select
+      value={selected?.id || ""}
+      onChange={async (e) => {
+        const athleteId = e.target.value;
+        const athlete = athletes.find((a) => a.id === athleteId);
+        if (!athlete) return;
+
+        applySelectedAthlete(athlete);
+        await loadAthleteData(athlete.id);
+        router.push(`/coach?athlete=${athlete.id}`);
+      }}
+    >
+      <option value="">Bitte wählen</option>
+      {athletes.map((athlete) => (
+        <option key={athlete.id} value={athlete.id}>
+          {athlete.full_name || "Athlet"}
+        </option>
+      ))}
+    </select>
+  </div>
+) : null}
 
         <div className="mobile-stat-box" style={{ borderLeft: "4px solid #22c55e" }}>
           <div className="mobile-stat-label">Check-ins</div>
