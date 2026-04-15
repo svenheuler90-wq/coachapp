@@ -1006,22 +1006,7 @@ const sections = sortSectionsByLayout(
                                 ? formatDateTimeDE(checkin.created_at)
                                 : checkin.date || "-"}
                           </div>
-                          <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                          <div className="muted">
-                            Blutdruck:{" "}
-                            {checkin.blood_pressure_sys && checkin.blood_pressure_dia
-                              ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
-                              : checkin.blood_pressure || "-"}
-                          </div>
-                          <div className="muted">Puls: {checkin.pulse_bpm ?? "-"} bpm</div>
-                          <div className="muted">Blutzucker: {checkin.blood_sugar ?? "-"} mg/dL</div>
-                          <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
-                          <div className="muted">Hunger-Skala: {checkin.hunger_scale ?? "-"}</div>
-                          <div className="muted">Stuhlgang: {checkin.stool_quality || "-"}</div>
-                          <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                          <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
-                          <div className="muted">Verdauung: {checkin.digestion || "-"}</div>
-                          <div className="muted">Kommentar: {checkin.additional_comment || "-"}</div>
+                          
 
                           <div className="button-row" style={{ marginTop: 10 }}>
                             <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
@@ -1031,6 +1016,54 @@ const sections = sortSectionsByLayout(
                               Löschen
                             </button>
                           </div>
+		          {checkin.weight_kg != null ? (
+  <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
+) : null}
+
+{checkin.blood_pressure_sys || checkin.blood_pressure_dia || checkin.blood_pressure ? (
+  <div className="muted">
+    Blutdruck:{" "}
+    {checkin.blood_pressure_sys && checkin.blood_pressure_dia
+      ? `${checkin.blood_pressure_sys}/${checkin.blood_pressure_dia} mmHg`
+      : checkin.blood_pressure}
+  </div>
+) : null}
+
+{checkin.pulse_bpm != null ? (
+  <div className="muted">Puls: {checkin.pulse_bpm} bpm</div>
+) : null}
+
+{checkin.blood_sugar != null ? (
+  <div className="muted">Blutzucker: {checkin.blood_sugar} mg/dL</div>
+) : null}
+
+{typeof checkin.hunger === "boolean" ? (
+  <div className="muted">Hunger: {checkin.hunger ? "Ja" : "Nein"}</div>
+) : null}
+
+{checkin.hunger_scale != null ? (
+  <div className="muted">Hunger-Skala: {checkin.hunger_scale}</div>
+) : null}
+
+{checkin.stool_quality ? (
+  <div className="muted">Stuhlgang: {checkin.stool_quality}</div>
+) : null}
+
+{checkin.stool_times != null ? (
+  <div className="muted">Wie oft: {checkin.stool_times}</div>
+) : null}
+
+{checkin.stool_every_days != null ? (
+  <div className="muted">Alle wie viele Tage: {checkin.stool_every_days}</div>
+) : null}
+
+{checkin.digestion ? (
+  <div className="muted">Verdauung: {checkin.digestion}</div>
+) : null}
+
+{checkin.additional_comment ? (
+  <div className="muted">Kommentar: {checkin.additional_comment}</div>
+) : null}
 
                           {renderPhotoGallery(linkedPhotos)}
                         </>
@@ -1056,9 +1089,17 @@ const sections = sortSectionsByLayout(
                                 ? formatDateTimeDE(checkin.created_at)
                                 : checkin.date || "-"}
                           </div>
-                          <div className="muted">Gewicht: {checkin.weight_kg ?? "-"} kg</div>
-                          <div className="muted">Wie oft: {checkin.stool_times ?? "-"}</div>
-                          <div className="muted">Alle wie viele Tage: {checkin.stool_every_days ?? "-"}</div>
+                          {checkin.weight_kg != null ? (
+  <div className="muted">Gewicht: {checkin.weight_kg} kg</div>
+) : null}
+
+{checkin.stool_times != null ? (
+  <div className="muted">Wie oft: {checkin.stool_times}</div>
+) : null}
+
+{checkin.stool_every_days != null ? (
+  <div className="muted">Alle wie viele Tage: {checkin.stool_every_days}</div>
+) : null}
                           <div className="button-row" style={{ marginTop: 10 }}>
                             <button className="btn btn-secondary" onClick={() => startEditCheckin(checkin)}>
                               Bearbeiten
